@@ -68,3 +68,7 @@ docs/        GUIDE (usage), REFERENCE (design/security/MySQL), HANDOFF (state)
 - Full audit trail
 
 **Heads up:** this is a teaching project. The demo passwords are public and the demo Fernet key lives in `run.sh`. Change both (and delete `CREDENTIALS.txt`) before any real use. Please don't put your actual university's records in here. 😄
+
+## License
+
+Released under the [MIT License](LICENSE).
