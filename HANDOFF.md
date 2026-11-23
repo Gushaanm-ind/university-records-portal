@@ -42,8 +42,14 @@ Two database engines now work:
 
 ```bash
 cd ~/Documents/university_portal
+./run.sh            # venv + packages + keys + seed + server + browser, one command
+```
+
+The launcher (`run.sh`) sets these itself for local use:
+
+```bash
 source venv/bin/activate          # Python 3.9.6
-export SECRET_KEY="test-secret-key-for-development"
+export SECRET_KEY="dev-secret-change-me"
 export PORTAL_FERNET_KEY="Jz5EWERS6MnfMqH3r5LB5bnxb2vEtvK5Wcmut8Q8ncU="
 ```
 
@@ -164,15 +170,24 @@ rules are byte-identical on both engines.
 - **Seed clears `audit_log` and `login_history`** on purpose: target ids restart, so
   old rows would name the wrong people.
 
-## 8. Backup and rollback
+## 8. Checkpoints and rollback
 
-No git repository exists for this project, so:
+The project is a git repository (initialised after the UI work). Restore points:
 
-- `~/Documents/university_portal_sqlite_backup/` — full copy taken before the MySQL
-  work (SQLite-only state, 588 KB, venv excluded).
-- `university.db` — the SQLite data, untouched by MySQL mode.
+- Tag `checkpoint-1` — commit `1840be3`, the verified working state: redesigned UI,
+  220 tests passing, SQLite data intact (58 users, 50 students, 204 enrolments).
+- `.checkpoints/university_portal_checkpoint-1.tar.gz` — plain copy of the same
+  state, venv excluded, in case git itself is damaged.
 
-Rollback = copy the backup back over the project folder, or simply `unset DB_ENGINE`.
+```bash
+git stash                  # park uncommitted work
+git checkout checkpoint-1  # go back to the known-good state
+git checkout main          # return to the latest commits
+```
+
+`university.db` and `CREDENTIALS.txt` are git-ignored (regenerate with
+`./run.sh reset`), so checking out a tag never overwrites the live data. To switch
+back from MySQL, `unset DB_ENGINE`.
 
 ## 9. Useful inventory
 

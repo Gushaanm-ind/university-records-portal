@@ -15,8 +15,9 @@ venv/
 university.db
 CREDENTIALS.txt
 
-# Local restore points
+# Local restore points and the launcher's pid/log folder
 .checkpoints/
+.run/
 
 # OS / editor noise
 .DS_Store
