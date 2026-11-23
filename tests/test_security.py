@@ -85,10 +85,21 @@ class TestSecurity:
         assert resp.status_code == 403
 
     def test_national_id_accessible_by_admin(self, admin_client):
-        """Admin should be able to reveal national ID."""
-        resp = admin_client.post("/admin/national-id/1")
+        """Admin can reveal it, but only after re-entering the admin password."""
+        confirm = admin_client.get("/admin/national-id/1")
+        assert confirm.status_code == 200
+        assert b'name="password"' in confirm.data
+
+        resp = admin_client.post("/admin/national-id/1", data={"password": "testpass123!"})
         assert resp.status_code == 200
-        assert b"National ID:" in resp.data or b"1234" in resp.data
+        assert b"National ID:" in resp.data
+
+    def test_national_id_needs_the_admin_password(self, admin_client):
+        """An admin session alone, or a wrong password, must not decrypt the ID."""
+        assert admin_client.post("/admin/national-id/1").status_code == 403
+        wrong = admin_client.post("/admin/national-id/1", data={"password": "not-the-password"})
+        assert wrong.status_code == 403
+        assert b'name="password"' in wrong.data
 
     def test_sql_injection_in_search(self, admin_client):
         """SQL injection attempt in search should return no data and no error."""

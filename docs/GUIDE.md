@@ -64,8 +64,8 @@ After signing in you land on your own dashboard: `/admin`, `/hod`, `/teacher`,
   history. Cannot create users or read the activity log.
 - **Admin** — creates users (student, teacher, HOD, admin), deactivates and
   reactivates accounts, resets passwords, edits anyone, reads the activity log
-  and all login history, and reveals a student's national ID (each reveal is
-  logged).
+  and all login history, and reveals a student's national ID after re-entering
+  the admin password (each reveal and refusal is logged).
 
 ### Admin: managing users
 1. Sidebar → **Users**.
@@ -77,6 +77,10 @@ After signing in you land on your own dashboard: `/admin`, `/hod`, `/teacher`,
 
 Accounts are deactivated rather than deleted, so the audit trail keeps its
 references. Deactivated accounts cannot sign in.
+
+The **Account** column is whether sign-in is enabled. The separate **Signed in**
+column is whether somebody is using that account right now; it refreshes every
+10 seconds, and the dashboard's **Signed in now** card lists those people live.
 
 ---
 

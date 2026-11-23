@@ -145,7 +145,9 @@ TEST_CASES = [
     ("admin", "/admin/login-history", "GET", 200, "admin→login history"),
     ("admin", "/admin/reports", "GET", 200, "admin→reports"),
     ("admin", "/admin/profile", "GET", 200, "admin→own profile"),
-    ("admin", "/admin/national-id/1", "POST", 200, "admin→national id reveal"),
+    # The reveal also needs the admin password, so a bare POST is refused; the
+    # confirmed flow is covered in test_security.py.
+    ("admin", "/admin/national-id/1", "POST", 403, "admin→national id without password"),
 
     # POST tamper tests
     ("student", "/hod/student/1", "POST", 403, "student POST edit student"),

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Confirm password - University Portal{% endblock %}
+{% block page_title %}Confirm it is you{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ student.name }} &middot; roll {{ student.roll_no }}</span>{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 620px;">
+    <div class="section-head">
+        <h2>Reveal national ID</h2>
+        <span class="badge badge-warning">Sensitive</span>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error" role="alert">
+        <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <p class="help-text" style="margin-top: 0;">
+        The national ID for <strong>{{ student.name }}</strong> is encrypted at rest.
+        Enter your own admin password to decrypt it for this one view. The reveal,
+        and any failed attempt, is written to the activity log.
+    </p>
+
+    <form method="POST" data-busy>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="password">Your admin password</label>
+            <div class="input-wrap">
+                <input type="password" id="password" name="password" autocomplete="current-password" required autofocus>
+                <button type="button" class="btn btn-sm btn-ghost input-action" data-toggle-password="password">Show</button>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-warning">
+                <svg class="icon"><use href="#i-eye"/></svg> Decrypt and show
+            </button>
+            <a href="{{ url_for('admin.edit_student', student_id=student.id) }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

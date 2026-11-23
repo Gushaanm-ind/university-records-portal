@@ -55,7 +55,10 @@ Demo data: 4 departments, 6 teachers, 50 students, 12 courses, 204 enrolments,
 - **Reports**: averages per department, students above average, second-highest
   mark.
 - **Activity log and login history**, role-filtered.
-- **National ID reveal** for admin only, encrypted at rest, every view logged.
+- **Signed in now**: a live list of accounts with an active session, refreshed
+  every 10 seconds, separate from whether an account is enabled.
+- **National ID reveal** for admin only, encrypted at rest, decrypted only after
+  the admin re-enters their password; every reveal and refusal is logged.
 
 ## Roles at a glance
 

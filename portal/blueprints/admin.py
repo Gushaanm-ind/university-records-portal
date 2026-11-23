@@ -1,6 +1,10 @@
 # university_portal/blueprints/admin.py
 import re
-from flask import Blueprint, render_template, session, abort, request, redirect, url_for, make_response, g
+import datetime
+from flask import (
+    Blueprint, render_template, session, abort, request, redirect, url_for,
+    make_response, jsonify, g,
+)
 from portal.db import get_db
 from portal.repositories.users import get_user_by_id, get_user_by_username, get_all_users
 from portal.repositories.objects import get_all_students, get_student_by_id, get_student_by_roll, get_all_teachers, get_teacher_by_id, get_teacher_by_staff_code
@@ -13,8 +17,11 @@ from portal.services.permissions import (
 )
 from portal.services.edits import edit_student_profile, edit_teacher_profile, edit_mark
 from portal.services.user_management import create_user, deactivate_user, reset_password
-from portal.security import validate_email, meets_password_policy, decrypt_national_id
+from portal.security import (
+    validate_email, meets_password_policy, decrypt_national_id, verify_password,
+)
 from portal.audit import write_audit
+from portal.services import presence
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -46,13 +53,34 @@ def index():
         role_counts[row["role"]] = role_counts.get(row["role"], 0) + 1
     active_users = sum(1 for row in all_users if row["is_active"])
     recent_logs = get_audit_logs()[:8]
+    online_now = presence.online_users()
     return render_template("admin/index.html", all_students=all_students, all_teachers=all_teachers,
                            all_courses=all_courses, all_users=all_users,
                            enrolments_count=enrolments_count, graded_count=graded_count,
                            login_history=login_history, role_counts=role_counts,
                            active_users=active_users,
                            inactive_users=len(all_users) - active_users,
+                           online_users=online_now,
+                           online_count=len(online_now),
                            recent_logs=recent_logs)
+
+
+@admin_bp.route("/admin/online.json")
+def online_now():
+    """Live presence feed the dashboard and users table poll."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify(error="sign in required"), 401
+    user = get_user_by_id(user_id)
+    if not user or user["role"] != "admin":
+        abort(403)
+    users = presence.online_users()
+    return jsonify(
+        count=len(users),
+        users=users,
+        presence=presence.snapshot(get_all_users()),
+        generated_at=datetime.datetime.utcnow().strftime("%H:%M:%S UTC"),
+    )
 
 
 @admin_bp.route("/admin/students")
@@ -158,7 +186,7 @@ def edit_student(student_id):
                            departments=get_all_departments(), editable=True)
 
 
-@admin_bp.route("/admin/national-id/<int:student_id>", methods=["POST"])
+@admin_bp.route("/admin/national-id/<int:student_id>", methods=["GET", "POST"])
 def reveal_national_id(student_id):
     user_id = session.get("user_id")
     if not user_id:
@@ -172,6 +200,26 @@ def reveal_national_id(student_id):
     student = get_student_by_id(student_id)
     if not student:
         abort(404)
+
+    # Decryption needs a second proof of identity, not just an admin session:
+    # an unattended browser must not hand out national IDs on one click.
+    if request.method == "GET":
+        return render_template("admin/national_id_confirm.html", student=student)
+
+    password = request.form.get("password") or ""
+    if not verify_password(user["password_hash"], password):
+        write_audit(
+            actor_id=user_id, action="SENSITIVE_REVEAL_DENIED", target_type="student",
+            target_id=student_id,
+            target_label=f"national ID of student {student['name']} (roll {student['roll_no']})",
+            ip_address=request.remote_addr or "",
+            actor_username=session.get("username"),
+            actor_role=user["role"],
+        )
+        return render_template(
+            "admin/national_id_confirm.html", student=student,
+            error="That password is not correct. The national ID was not shown.",
+        ), 403
 
     national_id = None
     if student["national_id_enc"]:
@@ -390,6 +438,7 @@ def list_users():
     elif status_filter == "inactive":
         users = [u for u in users if not u["is_active"]]
 
+    user_presence = presence.snapshot(all_users)
     return render_template(
         "admin/users.html",
         users=users,
@@ -400,6 +449,8 @@ def list_users():
         total_users=len(all_users),
         active_count=sum(1 for u in all_users if u["is_active"]),
         inactive_count=sum(1 for u in all_users if not u["is_active"]),
+        presence=user_presence,
+        online_count=sum(1 for info in user_presence.values() if info["online"]),
     )
 
 

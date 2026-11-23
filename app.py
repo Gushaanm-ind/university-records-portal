@@ -1,5 +1,6 @@
 # university_portal/app.py
 import os
+import time
 import datetime
 from flask import Flask, session, g, abort, request, render_template
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -7,6 +8,7 @@ from portal.config import Config
 from portal.db import init_db
 from portal.audit import write_audit
 from portal.repositories.users import get_user_by_id
+from portal.services import presence
 
 from portal.blueprints.auth import auth_bp
 from portal.blueprints.dashboard import dashboard_bp
@@ -95,6 +97,12 @@ def create_app():
             user = get_user_by_id(user_id)
             if user:
                 g.user = user
+                # Presence: refresh last_seen_at, at most every few seconds so a
+                # page with many assets does not write to the database each time.
+                now = time.time()
+                if now - float(session.get("presence_at") or 0) >= presence.STAMP_EVERY_SECONDS:
+                    presence.mark_seen(user_id)
+                    session["presence_at"] = now
             else:
                 session.clear()
                 g.user = None

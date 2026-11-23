@@ -5,6 +5,7 @@ from portal.db import get_db
 from portal.security import hash_password, verify_password, meets_password_policy
 from portal.repositories.users import get_user_by_username, update_last_login, increment_failed_attempts, get_user_by_id, lock_account, reset_failed_attempts
 from portal.audit import write_audit
+from portal.services import presence
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -133,6 +134,8 @@ def logout():
         write_audit(actor_id=user_id, action="LOGOUT", target_type="user",
                     target_id=user_id, target_label=username,
                     ip_address=request.remote_addr or "")
+        # Signed out means offline immediately, not "online for two more minutes".
+        presence.mark_signed_out(user_id)
     session.clear()
     return redirect(url_for("auth.login"))
 

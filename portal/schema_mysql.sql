@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS users (
     failed_attempts INT NOT NULL DEFAULT 0,
     locked_until VARCHAR(32) NULL,
     last_login_at VARCHAR(32) NULL,
+    last_seen_at VARCHAR(32) NULL,
     CONSTRAINT fk_user_student FOREIGN KEY (student_id) REFERENCES students(id),
     CONSTRAINT fk_user_teacher FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

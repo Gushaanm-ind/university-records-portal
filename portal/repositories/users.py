@@ -68,8 +68,9 @@ def update_last_login(user_id: int, ip: str):
     conn = get_db()
     try:
         conn.execute(
-            "UPDATE users SET last_login_at = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?",
-            (now, user_id),
+            "UPDATE users SET last_login_at = ?, last_seen_at = ?,"
+            " failed_attempts = 0, locked_until = NULL WHERE id = ?",
+            (now, now, user_id),
         )
         conn.commit()
     finally:

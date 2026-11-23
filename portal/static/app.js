@@ -260,6 +260,80 @@
     });
   }
 
+  /* ----------------------------------------------------------- presence -- */
+
+  // Polls one JSON feed and redraws the sent-in-now list and the presence
+  // badges on the users table. Ten seconds is frequent enough to feel live
+  // without turning a demo into a polling contest.
+  function setupPresence() {
+    var feed = $("[data-presence-feed]");
+    if (!feed) return;
+    var url = feed.getAttribute("data-presence-feed");
+    if (!url) return;
+
+    var countEl = $("#online-count");
+    var listEl = $("#online-list");
+    var updatedEl = $("#online-updated");
+
+    function row(user) {
+      var wrapper = document.createElement("div");
+      wrapper.className = "presence-row";
+      var dot = document.createElement("span");
+      dot.className = "presence-dot";
+      var name = document.createElement("span");
+      name.className = "cell-mono";
+      name.textContent = user.username;
+      var role = document.createElement("span");
+      role.className = "badge badge-" + user.role;
+      role.textContent = user.role;
+      var when = document.createElement("span");
+      when.className = "text-muted presence-when";
+      when.textContent = user.last_seen;
+      wrapper.appendChild(dot);
+      wrapper.appendChild(name);
+      wrapper.appendChild(role);
+      wrapper.appendChild(when);
+      return wrapper;
+    }
+
+    function render(data) {
+      if (countEl) countEl.textContent = data.count;
+      if (updatedEl) updatedEl.textContent = "updated " + data.generated_at;
+      if (listEl) {
+        listEl.textContent = "";
+        if (!data.users.length) {
+          var empty = document.createElement("p");
+          empty.className = "text-muted";
+          empty.textContent = "Nobody is signed in right now.";
+          listEl.appendChild(empty);
+        } else {
+          data.users.forEach(function (user) { listEl.appendChild(row(user)); });
+        }
+      }
+      $all("[data-presence-badge]").forEach(function (badge) {
+        var info = data.presence[badge.getAttribute("data-presence-badge")];
+        if (!info) return;
+        badge.textContent = info.online ? "Online" : "Offline";
+        badge.classList.toggle("badge-success", info.online);
+        badge.classList.toggle("badge-neutral", !info.online);
+      });
+      $all("[data-presence-ago]").forEach(function (el) {
+        var info = data.presence[el.getAttribute("data-presence-ago")];
+        if (info) el.textContent = info.label;
+      });
+    }
+
+    function poll() {
+      window.fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (data) { if (data) render(data); })
+        .catch(function () { /* keep the last good state */ });
+    }
+
+    poll();
+    window.setInterval(poll, 10000);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     document.documentElement.classList.add("has-js");
     setupSidebar();
@@ -271,5 +345,6 @@
     setupCreateUserForm();
     setupToday();
     setupSubmitState();
+    setupPresence();
   });
 })();

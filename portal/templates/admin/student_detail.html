@@ -41,14 +41,10 @@
         </div>
 
         <p class="form-section-title" style="margin-top: 1.4rem;">Sensitive data</p>
-        <p class="help-text" style="margin-top: 0;">Only admin can decrypt the national ID. Each reveal is logged.</p>
-        <form method="POST" action="{{ url_for('admin.reveal_national_id', student_id=student.id) }}"
-              data-confirm="Reveal the national ID for {{ student.name }}? This is recorded in the activity log.">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-warning">
-                <svg class="icon"><use href="#i-eye"/></svg> Reveal national ID
-            </button>
-        </form>
+        <p class="help-text" style="margin-top: 0;">Only admin can decrypt the national ID, and only after re-entering the admin password. Each reveal is logged.</p>
+        <a href="{{ url_for('admin.reveal_national_id', student_id=student.id) }}" class="btn btn-warning">
+            <svg class="icon"><use href="#i-eye"/></svg> Reveal national ID
+        </a>
     </div>
 
     {% if editable %}

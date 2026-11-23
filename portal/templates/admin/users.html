@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block title %}User Management - University Portal{% endblock %}
 {% block page_title %}User accounts{% endblock %}
-{% block page_subtitle %}<span class="page-subtitle">{{ total_users }} accounts &middot; {{ active_count }} active &middot; {{ inactive_count }} deactivated</span>{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ total_users }} accounts &middot; {{ active_count }} enabled &middot; {{ inactive_count }} deactivated &middot; <span class="online-count-inline">{{ online_count }} online now</span></span>{% endblock %}
 
 {% block content %}
+<div data-presence-feed="{{ url_for('admin.online_now') }}" hidden></div>
 <div class="page-head">
     <div class="page-head-text">
         <h2>Manage access</h2>
@@ -43,8 +44,8 @@
     </select>
     <select name="status">
         <option value="">Any status</option>
-        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
-        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Deactivated</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Account active</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Account deactivated</option>
     </select>
     <button type="submit" class="btn btn-secondary">Filter</button>
     {% if search or role_filter or status_filter %}
@@ -60,7 +61,8 @@
                 <th>Account</th>
                 <th>Full name</th>
                 <th>Role</th>
-                <th>Status</th>
+                <th>Account</th>
+                <th>Signed in</th>
                 <th>Last sign-in</th>
                 <th class="cell-actions">Actions</th>
             </tr>
@@ -92,6 +94,15 @@
                     {% else %}
                         <span class="badge badge-danger badge-dot">Deactivated</span>
                     {% endif %}
+                </td>
+                <td>
+                    {% set p = presence.get(u.username, {'online': False, 'label': 'never signed in'}) %}
+                    {% if p.online %}
+                        <span class="badge badge-success badge-dot" data-presence-badge="{{ u.username }}">Online</span>
+                    {% else %}
+                        <span class="badge badge-neutral badge-dot" data-presence-badge="{{ u.username }}">Offline</span>
+                    {% endif %}
+                    <span class="text-muted presence-ago" data-presence-ago="{{ u.username }}">{{ p.label }}</span>
                 </td>
                 <td class="text-muted cell-mono">
                     {{ u.last_login_at[:16]|replace('T', ' ') if u.last_login_at else 'Never' }}
@@ -139,6 +150,8 @@
 {% endif %}
 
 <p class="help-text">
+    <strong>Account</strong> is whether sign-in is enabled; <strong>Signed in</strong> is
+    whether somebody is using that account right now (it refreshes every 10 seconds).
     Deactivated accounts keep their records and marks; they simply cannot sign in.
     Resetting a password shows the new one exactly once.
 </p>

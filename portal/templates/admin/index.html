@@ -115,12 +115,34 @@
             {% endfor %}
         </div>
         <div class="notice mt-3">
-            <strong>{{ active_users }}</strong> active &middot;
+            <strong>{{ active_users }}</strong> enabled accounts &middot;
             <strong>{{ inactive_users }}</strong> deactivated &middot;
             <strong>{{ graded_count }}</strong> graded enrolments
         </div>
     </section>
 </div>
+
+<section class="card" data-presence-feed="{{ url_for('admin.online_now') }}">
+    <div class="section-head">
+        <h2>
+            Signed in now
+            <span class="badge badge-success badge-dot" id="online-count">{{ online_count }}</span>
+        </h2>
+        <span class="page-subtitle" id="online-updated">updates every 10 seconds</span>
+    </div>
+    <div class="presence-list" id="online-list">
+        {% for u in online_users %}
+        <div class="presence-row">
+            <span class="presence-dot"></span>
+            <span class="cell-mono">{{ u.username }}</span>
+            <span class="badge badge-{{ u.role }}">{{ u.role }}</span>
+            <span class="text-muted presence-when">{{ u.last_seen }}</span>
+        </div>
+        {% else %}
+        <p class="text-muted">Nobody is signed in right now.</p>
+        {% endfor %}
+    </div>
+</section>
 
 <section class="card">
     <div class="section-head">

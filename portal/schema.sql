@@ -53,7 +53,9 @@ CREATE TABLE IF NOT EXISTS users (
     is_active INTEGER NOT NULL DEFAULT 1,
     failed_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TEXT,
-    last_login_at TEXT
+    last_login_at TEXT,
+    -- Written on every signed-in request; NULL means signed out.
+    last_seen_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (

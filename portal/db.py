@@ -219,12 +219,25 @@ def schema_file():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
 
 
+def _ensure_presence_column(conn):
+    """Add users.last_seen_at to databases created before presence tracking."""
+    if using_mysql():
+        columns = {row[0].lower() for row in conn.execute("SHOW COLUMNS FROM users").fetchall()}
+        if "last_seen_at" not in columns:
+            conn.execute("ALTER TABLE users ADD COLUMN last_seen_at VARCHAR(32) NULL")
+        return
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)").fetchall()}
+    if "last_seen_at" not in columns:
+        conn.execute("ALTER TABLE users ADD COLUMN last_seen_at TEXT")
+
+
 def init_db():
     with open(schema_file(), "r", encoding="utf-8") as handle:
         sql = handle.read()
     conn = get_db()
     try:
         conn.executescript(sql)
+        _ensure_presence_column(conn)
         conn.commit()
     finally:
         conn.close()

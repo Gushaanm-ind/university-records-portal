@@ -108,7 +108,7 @@ class TestAudit:
     def test_view_sensitive_writes_audit(self, admin_client):
         """Revealing national ID should write VIEW_SENSITIVE audit."""
         from portal.repositories.audit import get_audit_logs
-        resp = admin_client.post("/admin/national-id/1")
+        resp = admin_client.post("/admin/national-id/1", data={"password": "testpass123!"})
         assert resp.status_code == 200
 
         logs = get_audit_logs({"action": "VIEW_SENSITIVE"})
