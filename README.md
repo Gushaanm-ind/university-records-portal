@@ -69,6 +69,19 @@ docs/        GUIDE (usage), REFERENCE (design/security/MySQL), HANDOFF (state)
 
 **Heads up:** this is a teaching project. The demo passwords are public and the demo Fernet key lives in `run.sh`. Change both (and delete `CREDENTIALS.txt`) before any real use. Please don't put your actual university's records in here. 😄
 
+## Using Your Own Data
+
+This repository ships **no database and no real records**. On first run, `./run.sh` creates a local `university.db` from `portal/schema.sql` and fills it with generated demo data — made-up names, roll numbers and staff codes, with encrypted sample national IDs — from `scripts/seed.py`.
+
+So yes: **bring your own schema and your own mock data.** You can:
+
+- edit `portal/schema.sql` (or `portal/schema_mysql.sql` for MySQL) to match your own tables,
+- replace the generated rows in `scripts/seed.py` with your own mock data,
+- or skip seeding entirely and point the app at an existing SQLite file or a MySQL server (`DB_ENGINE=mysql`), then run `./venv/bin/python scripts/set_demo_passwords.py` to give those accounts passwords you know,
+- `./run.sh reset` rebuilds the database from scratch whenever you change the schema or seed data.
+
+`university.db` and `CREDENTIALS.txt` are generated locally and deliberately git-ignored, which is why a fresh clone starts with demo data and nothing else.
+
 ## License
 
 Released under the [MIT License](LICENSE).
