@@ -1,6 +1,6 @@
 # university_portal/services/permissions.py
 from flask import abort, request
-from audit import write_audit
+from portal.audit import write_audit
 
 
 def check_access(user, required_role=None, action_label=None):

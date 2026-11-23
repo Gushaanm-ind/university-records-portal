@@ -6,9 +6,9 @@ import re
 class TestSecurity:
     def test_lockout_after_5_failures(self, client):
         """After 5 failed logins, the account should be locked (423)."""
-        from repositories.users import get_user_by_username, get_user_by_id
-        from db import get_db
-        from security import hash_password
+        from portal.repositories.users import get_user_by_username, get_user_by_id
+        from portal.db import get_db
+        from portal.security import hash_password
 
         # Set a known password for test account "101"
         conn = get_db()

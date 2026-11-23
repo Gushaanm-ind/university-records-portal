@@ -19,7 +19,7 @@ identical on both engines instead of rewriting every query.
 import os
 import sqlite3
 
-from config import Config
+from portal.config import Config
 
 ENGINES = ("sqlite", "mysql")
 

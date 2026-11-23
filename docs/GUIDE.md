@@ -83,10 +83,10 @@ references. Deactivated accounts cannot sign in.
 ## 4. Look at the data in the terminal
 
 ```bash
-./venv/bin/python tools/show_tables.py --list                      # tables + row counts
-./venv/bin/python tools/show_tables.py                             # 5 main tables
-./venv/bin/python tools/show_tables.py --table users --limit 5
-./venv/bin/python tools/show_tables.py --sql "SELECT role, COUNT(*) FROM users GROUP BY role"
+./venv/bin/python scripts/show_tables.py --list                      # tables + row counts
+./venv/bin/python scripts/show_tables.py                             # 5 main tables
+./venv/bin/python scripts/show_tables.py --table users --limit 5
+./venv/bin/python scripts/show_tables.py --sql "SELECT role, COUNT(*) FROM users GROUP BY role"
 ```
 
 Read-only: `SELECT`, `WITH` and `PRAGMA` only. Expected totals: 4 departments,
@@ -101,7 +101,7 @@ Read-only: `SELECT`, `WITH` and `PRAGMA` only. Expected totals: 4 departments,
 
 ```bash
 ./run.sh test                        # 220 pytest tests, temporary database
-./venv/bin/python tools/smoke_test.py   # logs in as all four roles
+./venv/bin/python scripts/smoke_test.py   # logs in as all four roles
 ```
 
 Tests never touch `university.db` or `CREDENTIALS.txt`.

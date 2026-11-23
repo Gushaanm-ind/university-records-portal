@@ -113,15 +113,15 @@ Tables: `departments`, `teachers`, `students`, `courses`, `enrollments`, `users`
 - Each student enrolled in 3–5 courses (204 enrolments), marks 0–100, about a
   third left NULL to exercise the reporting queries
 - 1 admin, 1 HOD, 6 teacher accounts, 50 student accounts (58 users total)
-- `seed.py` gives every account a random 14-character password; the credentials
-  file records it. `set_demo_passwords.py` then sets the fixed demo passwords.
+- `scripts/seed.py` gives every account a random 14-character password; the credentials
+  file records it. `scripts/set_demo_passwords.py` then sets the fixed demo passwords.
 - Re-seeding clears `audit_log` and `login_history`, because their target ids
   would otherwise point at different people once the ids restart.
 
 ## Credentials file
 
 `CREDENTIALS.txt` is generated from the live database by `credentials.py`, the
-single writer used by both `seed.py` and `set_demo_passwords.py`, so the file
+single writer used by both `scripts/seed.py` and `scripts/set_demo_passwords.py`, so the file
 cannot drift from the tables. It contains:
 
 - A header with the demo-only warning, a `Generated:` UTC timestamp and the
@@ -133,7 +133,7 @@ cannot drift from the tables. It contains:
   accounts", and a password the writer was not given is shown as
   `(not recorded)` — never invented.
 
-`./run.sh verify` (or `python set_demo_passwords.py --verify`) re-reads the file,
+`./run.sh verify` (or `python scripts/set_demo_passwords.py --verify`) re-reads the file,
 checks every account exists, compares every password with the stored hash, and
 reports any account that is missing, stale or deactivated.
 
@@ -147,8 +147,8 @@ pip install -r requirements.txt
 export PORTAL_FERNET_KEY=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
 export SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
 
-python seed.py
-python set_demo_passwords.py
+python scripts/seed.py
+python scripts/set_demo_passwords.py
 PORT=5055 python app.py
 ```
 
@@ -180,8 +180,8 @@ export MYSQL_HOST=127.0.0.1      # defaults
 export MYSQL_PORT=3306
 export MYSQL_DATABASE=university_db
 
-python seed.py                        # creates schema_mysql.sql tables + sample data
-python set_demo_passwords.py --verify  # CREDENTIALS.txt now matches MySQL
+python scripts/seed.py                        # creates schema_mysql.sql tables + sample data
+python scripts/set_demo_passwords.py --verify  # CREDENTIALS.txt now matches MySQL
 PORT=5055 python app.py
 ```
 
@@ -208,4 +208,4 @@ strings such as `2026-11-04T12:01:52.219134`.
 - **No password strength meter**: minimum 8 characters, no complexity rules.
 - **MySQL test coverage**: `tests/conftest.py` isolates each test by copying the
   SQLite file, so the suite exercises SQLite. MySQL is verified manually with
-  `seed.py`, `set_demo_passwords.py --verify` and `tools/smoke_test.py`.
+  `scripts/seed.py`, `set_demo_passwords.py --verify` and `scripts/smoke_test.py`.

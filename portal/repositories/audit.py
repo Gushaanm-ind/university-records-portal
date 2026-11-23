@@ -1,5 +1,5 @@
 # university_portal/repositories/audit.py
-from db import get_db
+from portal.db import get_db
 
 
 def get_audit_logs(filters: dict = None):

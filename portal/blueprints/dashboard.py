@@ -1,13 +1,13 @@
 # university_portal/blueprints/dashboard.py
 from flask import Blueprint, render_template, session, redirect, url_for
-from repositories.users import get_user_by_id
-from repositories.audit import get_audit_logs, count_audit_logs
+from portal.repositories.users import get_user_by_id
+from portal.repositories.audit import get_audit_logs, count_audit_logs
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
 def get_dashboard_counts(user):
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         counts = {}

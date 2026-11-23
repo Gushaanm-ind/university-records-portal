@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-# university_portal/tools/show_tables.py
+# university_portal/scripts/show_tables.py
 """
 Print the university database in the terminal, laid out like the tables in the
 DBMS practical manual.
 
 Usage (from the project root, with the venv active):
 
-    python tools/show_tables.py                 # department, teacher, student, course, enrollment
-    python tools/show_tables.py --list          # every table name + row count
-    python tools/show_tables.py --schema        # the CREATE TABLE statements
-    python tools/show_tables.py --table users   # any single table
-    python tools/show_tables.py --sql "SELECT ..."
-    python tools/show_tables.py --limit 10      # cap rows of --table / --sql
+    python scripts/show_tables.py                 # department, teacher, student, course, enrollment
+    python scripts/show_tables.py --list          # every table name + row count
+    python scripts/show_tables.py --schema        # the CREATE TABLE statements
+    python scripts/show_tables.py --table users   # any single table
+    python scripts/show_tables.py --sql "SELECT ..."
+    python scripts/show_tables.py --limit 10      # cap rows of --table / --sql
 
 Only the Python standard library is used, so no extra install and no sqlite3
 command-line client is needed.
@@ -85,14 +85,14 @@ MASKED_COLUMNS = {"national_id_enc", "password_hash"}
 
 def connect():
     if ENGINE == "mysql":
-        # Running this file as a script puts tools/ on sys.path, not the project.
+        # Running this file as a script puts scripts/ on sys.path, not the project.
         if PROJECT_ROOT not in sys.path:
             sys.path.insert(0, PROJECT_ROOT)
-        from db import get_db
+        from portal.db import get_db
 
         return get_db()
     if not os.path.exists(DB_PATH):
-        sys.exit(f"No database at {DB_PATH}\nRun: python seed.py")
+        sys.exit(f"No database at {DB_PATH}\nRun: python scripts/seed.py")
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

@@ -1,8 +1,8 @@
 # university_portal/services/user_management.py
-from db import get_db
-from audit import write_audit
-from security import hash_password, generate_random_password
-from repositories.users import get_user_by_id
+from portal.db import get_db
+from portal.audit import write_audit
+from portal.security import hash_password, generate_random_password
+from portal.repositories.users import get_user_by_id
 
 
 def create_user(

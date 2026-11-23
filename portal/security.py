@@ -7,7 +7,7 @@ import datetime
 from flask import session, redirect, url_for, request, abort, g
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
-from config import Config
+from portal.config import Config
 
 _cipher = None
 

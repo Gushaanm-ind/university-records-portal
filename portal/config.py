@@ -18,7 +18,9 @@ class Config:
     # file, no server needed) or "mysql" (a running MySQL server).
     DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite").strip().lower()
 
-    DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "university.db")
+    # The database file lives in the project root, one level above this package.
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATABASE = os.path.join(PROJECT_ROOT, "university.db")
 
     MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
     MYSQL_PORT = int(os.environ.get("MYSQL_PORT", "3306"))

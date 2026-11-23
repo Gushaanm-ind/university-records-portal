@@ -1,10 +1,10 @@
 # university_portal/blueprints/auth.py
 import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, abort
-from db import get_db
-from security import hash_password, verify_password, meets_password_policy
-from repositories.users import get_user_by_username, update_last_login, increment_failed_attempts, get_user_by_id, lock_account, reset_failed_attempts
-from audit import write_audit
+from portal.db import get_db
+from portal.security import hash_password, verify_password, meets_password_policy
+from portal.repositories.users import get_user_by_username, update_last_login, increment_failed_attempts, get_user_by_id, lock_account, reset_failed_attempts
+from portal.audit import write_audit
 
 auth_bp = Blueprint("auth", __name__)
 

@@ -1,5 +1,5 @@
 # university_portal/services/reports.py
-from db import get_db
+from portal.db import get_db
 
 
 def avg_marks_per_branch():

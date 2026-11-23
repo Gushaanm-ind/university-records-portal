@@ -1,7 +1,7 @@
 # university_portal/repositories/users.py
 import datetime
-from db import get_db
-from config import Config
+from portal.db import get_db
+from portal.config import Config
 
 
 def get_user_by_username(username: str):

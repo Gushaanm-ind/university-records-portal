@@ -3,22 +3,30 @@ import os
 import datetime
 from flask import Flask, session, g, abort, request, render_template
 from flask_wtf.csrf import CSRFProtect, CSRFError
-from config import Config
-from db import init_db
-from audit import write_audit
-from repositories.users import get_user_by_id
+from portal.config import Config
+from portal.db import init_db
+from portal.audit import write_audit
+from portal.repositories.users import get_user_by_id
 
-from blueprints.auth import auth_bp
-from blueprints.dashboard import dashboard_bp
-from blueprints.student import student_bp
-from blueprints.teacher import teacher_bp
-from blueprints.hod import hod_bp
-from blueprints.admin import admin_bp
+from portal.blueprints.auth import auth_bp
+from portal.blueprints.dashboard import dashboard_bp
+from portal.blueprints.student import student_bp
+from portal.blueprints.teacher import teacher_bp
+from portal.blueprints.hod import hod_bp
+from portal.blueprints.admin import admin_bp
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def create_app():
-    app = Flask(__name__)
-    app.config.from_object("config.Config")
+    # Templates and static files live inside the portal package.
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(BASE_DIR, "portal", "templates"),
+        static_folder=os.path.join(BASE_DIR, "portal", "static"),
+    )
+    app.config.from_object("portal.config.Config")
 
     # Session cookie hardening (Flask sets these on the real session cookie).
     # Secure is opt-in: a Secure cookie is not sent over http://localhost, which

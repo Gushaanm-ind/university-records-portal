@@ -1,6 +1,6 @@
 # university_portal/audit.py
 import datetime
-from db import get_db
+from portal.db import get_db
 
 AUDIT_ACTIONS = {
     "LOGIN_SUCCESS", "LOGIN_FAILED", "LOGOUT", "ACCOUNT_LOCKED",

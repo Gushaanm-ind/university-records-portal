@@ -5,7 +5,7 @@ import pytest
 class TestReports:
     def test_avg_marks_per_branch_returns_data(self, admin_client):
         """Reports should return average marks per branch."""
-        from services.reports import avg_marks_per_branch
+        from portal.services.reports import avg_marks_per_branch
         data = avg_marks_per_branch()
         assert len(data) == 4, f"Expected 4 branches, got {len(data)}"
         for row in data:
@@ -13,33 +13,33 @@ class TestReports:
 
     def test_students_above_branch_average(self, admin_client):
         """Students above branch average report should work."""
-        from services.reports import students_above_branch_average
+        from portal.services.reports import students_above_branch_average
         data = students_above_branch_average()
         # May be empty if no students above average, but should not error
         assert isinstance(data, list)
 
     def test_courses_with_highest_average(self, admin_client):
         """Courses with highest average report should work."""
-        from services.reports import courses_with_highest_average
+        from portal.services.reports import courses_with_highest_average
         data = courses_with_highest_average()
         assert isinstance(data, list)
 
     def test_second_highest_mark(self, admin_client):
         """Second highest mark report should work."""
-        from services.reports import second_highest_mark
+        from portal.services.reports import second_highest_mark
         val = second_highest_mark()
         # May be None if not enough data, but should not error
         assert val is None or (isinstance(val, int) and 0 <= val <= 100)
 
     def test_students_above_overall_average(self, admin_client):
         """Students above overall average report should work."""
-        from services.reports import students_above_overall_average
+        from portal.services.reports import students_above_overall_average
         data = students_above_overall_average()
         assert isinstance(data, list)
 
     def test_practical_query_2_group_by(self, admin_client):
         """Verify the Practical 2 Query 2 equivalent: GROUP BY with LEFT JOIN."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             rows = conn.execute("""
@@ -58,7 +58,7 @@ class TestReports:
 
     def test_practical_query_5_subquery(self, admin_client):
         """Verify the Practical 2 Query 5 equivalent: subquery for above-average."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             rows = conn.execute("""
@@ -75,7 +75,7 @@ class TestReports:
 
     def test_practical_query_7_second_highest(self, admin_client):
         """Verify the Practical 2 Query 7 equivalent: second highest mark."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             row = conn.execute("""

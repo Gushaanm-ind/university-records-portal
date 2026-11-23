@@ -1,6 +1,6 @@
 # university_portal/services/edits.py
-from db import get_db
-from audit import write_audit
+from portal.db import get_db
+from portal.audit import write_audit
 
 
 def edit_student_profile(

@@ -22,15 +22,15 @@ Two database engines now work:
 ## 2. Verified facts (measured, not assumed)
 
 - **220 pytest tests pass** on SQLite: `pytest -q` → `220 passed`.
-- **Smoke test passes** on SQLite: `python tools/smoke_test.py` → `SMOKE TEST PASSED`, four roles.
+- **Smoke test passes** on SQLite: `python scripts/smoke_test.py` → `SMOKE TEST PASSED`, four roles.
 - **Live logins work**: all four roles return 200 on `/admin`, `/hod`, `/teacher`, `/student`.
-- **CREDENTIALS.txt matches the database**: `python set_demo_passwords.py --verify` → OK.
+- **CREDENTIALS.txt matches the database**: `python scripts/set_demo_passwords.py --verify` → OK.
 - **Data**: 58 users (1 admin, 1 HOD, 6 teachers, 50 students), 50 students, 12 courses,
   204 enrolments, 4 departments.
 - **MySQL is live and verified** (server 26.7.0, `portal@127.0.0.1:3306/university_db`):
-  `seed.py` → 8 tables, 58 users, 50 students, 6 teachers, 12 courses, 204 enrolments,
-  4 departments; `set_demo_passwords.py --verify` → matches; `tools/show_tables.py --list`
-  reads MySQL through `information_schema`; `SMOKE_ALLOW_MYSQL=1 tools/smoke_test.py` →
+  `scripts/seed.py` → 8 tables, 58 users, 50 students, 6 teachers, 12 courses, 204 enrolments,
+  4 departments; `set_demo_passwords.py --verify` → matches; `scripts/show_tables.py --list`
+  reads MySQL through `information_schema`; `SMOKE_ALLOW_MYSQL=1 python scripts/smoke_test.py` →
   **SMOKE TEST PASSED** (all 4 roles, all pages); live logins on port 5055 → admin/hod/
   T001/101 each land on their dashboard, student gets **403** on `/admin`, a wrong
   password writes `login_history.success = 0`.
@@ -74,15 +74,15 @@ pytest -q
 pytest tests/test_login_history.py -q
 
 # end-to-end login as all four roles against a temporary database
-python tools/smoke_test.py
+python scripts/smoke_test.py
 
 # database in the terminal
-python tools/show_tables.py --list
-python tools/show_tables.py --table users --limit 5
-python tools/show_tables.py --sql "SELECT role, COUNT(*) AS n FROM users GROUP BY role"
+python scripts/show_tables.py --list
+python scripts/show_tables.py --table users --limit 5
+python scripts/show_tables.py --sql "SELECT role, COUNT(*) AS n FROM users GROUP BY role"
 
 # credential file vs database
-python set_demo_passwords.py --verify
+python scripts/set_demo_passwords.py --verify
 ```
 
 The test suite builds its own database in a temp directory (`tests/conftest.py`),
@@ -95,15 +95,15 @@ from here on:
 
 ```bash
 export DB_ENGINE=mysql MYSQL_USER=portal MYSQL_PASSWORD='PortalDev123!' MYSQL_DATABASE=university_db
-python seed.py                          # rebuild tables + sample data
+python scripts/seed.py                          # rebuild tables + sample data
 export SMOKE_ALLOW_MYSQL=1
-python tools/smoke_test.py              # 4 roles, every page
-python set_demo_passwords.py           # restore demo passwords (smoke overwrote 4)
-python set_demo_passwords.py --verify
+python scripts/smoke_test.py              # 4 roles, every page
+python scripts/set_demo_passwords.py           # restore demo passwords (smoke overwrote 4)
+python scripts/set_demo_passwords.py --verify
 PORT=5055 python app.py
 ```
 
-Expected numbers after `seed.py`: users 58, students 50, teachers 6, courses 12,
+Expected numbers after `scripts/seed.py`: users 58, students 50, teachers 6, courses 12,
 enrolments 204, departments 4, `audit_log`/`login_history` empty until the site is used.
 
 Rebuilding from scratch (needs root) — this is what was run, and it is idempotent
@@ -118,7 +118,7 @@ GRANT ALL PRIVILEGES ON university_db.* TO 'portal'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-**If `seed.py` ever fails**, read the *first* error:
+**If `scripts/seed.py` ever fails**, read the *first* error:
 
 - `Every derived table must have its own alias` — MySQL-only rule; SQLite allows
   `FROM (SELECT …)` with no alias. Fixed once already in `services/reports.py`.
@@ -145,9 +145,9 @@ not describe the suite as engine-agnostic.
 | `config.py` | `DB_ENGINE` + five `MYSQL_*` settings (host, port, user, password, database) |
 | `db.py` | `engine()`, `using_mysql()`, `Row` (dict + positional), `MySQLConnection`/`MySQLCursor` adapter, `schema_file()`, `init_db()` picks the right schema |
 | `schema_mysql.sql` | New: same 8 tables for MySQL (`AUTO_INCREMENT`, `VARCHAR`, `utf8mb4_bin`, InnoDB, FKs, indexes, CHECKs) |
-| `seed.py` | `_reset_data()` (MySQL: `SET FOREIGN_KEY_CHECKS=0` + `TRUNCATE`; SQLite: `DELETE` + `sqlite_sequence` reset), `INSERT IGNORE` vs `INSERT OR IGNORE` |
+| `scripts/seed.py` | `_reset_data()` (MySQL: `SET FOREIGN_KEY_CHECKS=0` + `TRUNCATE`; SQLite: `DELETE` + `sqlite_sequence` reset), `INSERT IGNORE` vs `INSERT OR IGNORE` |
 | `credentials.py` | Uses `get_db()`; engine-aware roll-number ordering (`CAST(… AS SIGNED)`); header names the MySQL database |
-| `tools/show_tables.py` | Follows `DB_ENGINE`; `information_schema` + `SHOW CREATE TABLE` on MySQL, `sqlite_master` on SQLite; same output format |
+| `scripts/show_tables.py` | Follows `DB_ENGINE`; `information_schema` + `SHOW CREATE TABLE` on MySQL, `sqlite_master` on SQLite; same output format |
 | `requirements.txt` | `PyMySQL==1.2.3` |
 | `README.md`, `GUIDE.md` | MySQL section: create database/user, env vars, seed, switch back |
 
@@ -192,13 +192,17 @@ back from MySQL, `unset DB_ENGINE`.
 ## 9. Useful inventory
 
 ```
-app.py  config.py  db.py  schema.sql  schema_mysql.sql  seed.py  set_demo_passwords.py
-credentials.py  security.py  audit.py
-blueprints/ (auth, student, teacher, hod, admin, shared, dashboard)
-repositories/ (users, objects, audit, departments)
-services/ (auth, permissions, edits, reports, user_management)
-templates/  static/style.css  tests/ (11 files, 220 cases)  tools/ (show_tables, smoke_test)
-README.md  GUIDE.md  HANDOFF.md  CREDENTIALS.txt  university.db
+app.py  run.sh  README.md  requirements.txt
+portal/  config.py  db.py  schema.sql  schema_mysql.sql  seed-less package of app code
+  credentials.py  security.py  audit.py
+  blueprints/ (auth, student, teacher, hod, admin, dashboard)
+  repositories/ (users, objects, audit, departments)
+  services/ (permissions, edits, reports, user_management)
+  templates/  static/
+scripts/ (seed.py, set_demo_passwords.py, show_tables.py, smoke_test.py)
+tests/ (11 files, 220 cases)
+docs/ (GUIDE.md, REFERENCE.md, HANDOFF.md)
+CREDENTIALS.txt  university.db
 ```
 
 Demo accounts: `admin`/`Admin123!`, `hod`/`Hod123!`, `T001`…`T006`/`Teacher123!`,

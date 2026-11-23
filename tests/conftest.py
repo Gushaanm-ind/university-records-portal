@@ -26,7 +26,7 @@ if not os.environ.get("SECRET_KEY"):
 
 TEST_PASSWORD = "testpass123!"
 
-import config  # noqa: E402
+from portal import config  # noqa: E402
 
 _original_db = config.Config.DATABASE
 _tmp_dir = tempfile.mkdtemp(prefix="university_tests_")
@@ -34,9 +34,9 @@ _template_db = os.path.join(_tmp_dir, "template.db")
 config.Config.DATABASE = _template_db
 
 # Build the seeded template database now, before any test module imports data.
-from db import init_db, get_db  # noqa: E402
-from seed import seed  # noqa: E402
-from security import hash_password  # noqa: E402
+from portal.db import init_db, get_db  # noqa: E402
+from scripts.seed import seed  # noqa: E402
+from portal.security import hash_password  # noqa: E402
 
 init_db()
 seed(write_credentials_file=False)

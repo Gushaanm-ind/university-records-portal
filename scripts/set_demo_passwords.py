@@ -4,10 +4,10 @@ Set simple, known demo passwords on every account and rewrite CREDENTIALS.txt
 so the file always matches what is actually stored in the database.
 
 Run after seeding:
-    python set_demo_passwords.py
+    python scripts/set_demo_passwords.py
 
 Check that CREDENTIALS.txt is truthful without changing anything:
-    python set_demo_passwords.py --verify
+    python scripts/set_demo_passwords.py --verify
 
 Passwords set:
     admin            Admin123!
@@ -15,13 +15,19 @@ Passwords set:
     teachers T001-6  Teacher123!
     students 101-150 Student123!
 """
+import os
 import sys
 
-from credentials import verify_credentials_file, write_credentials_file
-from db import get_db, init_db
+# Running this file as a script puts scripts/ on sys.path, not the project root.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from portal.credentials import verify_credentials_file, write_credentials_file
+from portal.db import get_db, init_db
 
 # Imported lazily so a missing PORTAL_FERNET_KEY does not block password resets.
-from security import hash_password
+from portal.security import hash_password
 
 ADMIN_PASSWORD = "Admin123!"
 HOD_PASSWORD = "Hod123!"
@@ -44,7 +50,7 @@ def verify():
     print(f"CREDENTIALS.txt does NOT match the database ({len(problems)} problem(s)):")
     for problem in problems:
         print(f"  - {problem}")
-    print("\nFix with: python set_demo_passwords.py")
+    print("\nFix with: python scripts/set_demo_passwords.py")
     return 1
 
 
@@ -56,7 +62,7 @@ def main():
             "SELECT username, role FROM users ORDER BY role, username"
         ).fetchall()
         if not users:
-            print("No users found. Run 'python seed.py' first.")
+            print("No users found. Run 'python scripts/seed.py' first.")
             return 1
 
         passwords = {}

@@ -5,9 +5,9 @@ import pytest
 class TestWorkflows:
     def test_hod_changes_student_mark_appears_in_admin_activity_log(self, hod_client, admin_client):
         """HOD changes a student's mark; change appears in admin activity log."""
-        from repositories.audit import get_audit_logs
-        from db import get_db
-        from security import hash_password
+        from portal.repositories.audit import get_audit_logs
+        from portal.db import get_db
+        from portal.security import hash_password
 
         # Set passwords for hod and admin (both fixtures already logged in)
         conn = get_db()
@@ -42,8 +42,8 @@ class TestWorkflows:
 
     def test_student_changes_password_and_logs_in_with_new_password(self, student_client):
         """Student changes password and logs in with the new one."""
-        from db import get_db
-        from security import hash_password
+        from portal.db import get_db
+        from portal.security import hash_password
 
         # Set initial password (student_client fixture already logged in with testpass123!)
         conn = get_db()
@@ -91,8 +91,8 @@ class TestWorkflows:
 
     def test_admin_creates_user_and_user_can_login(self, admin_client):
         """Admin creates a user and that user can log in."""
-        from db import get_db
-        from security import hash_password
+        from portal.db import get_db
+        from portal.security import hash_password
 
         # Ensure admin has known password
         conn = get_db()

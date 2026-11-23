@@ -1,10 +1,10 @@
 # university_portal/blueprints/teacher.py
 from flask import Blueprint, render_template, session, abort, request, redirect, url_for, g
-from repositories.users import get_user_by_id
-from repositories.objects import get_all_students, get_student_by_id, get_all_courses, get_course_by_id
-from repositories.audit import get_login_history_for_user
-from services.permissions import check_access
-from audit import write_audit
+from portal.repositories.users import get_user_by_id
+from portal.repositories.objects import get_all_students, get_student_by_id, get_all_courses, get_course_by_id
+from portal.repositories.audit import get_login_history_for_user
+from portal.services.permissions import check_access
+from portal.audit import write_audit
 
 teacher_bp = Blueprint("teacher", __name__)
 
@@ -21,7 +21,7 @@ def index():
     tid = user["teacher_id"]
     courses = []
     if tid:
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             courses = conn.execute("""
@@ -82,7 +82,7 @@ def view_student(student_id):
     student = get_student_by_id(student_id)
     if not student:
         abort(404)
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments = conn.execute("""
@@ -140,7 +140,7 @@ def view_course(course_id):
     course = get_course_by_id(course_id)
     if not course:
         abort(404)
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments = conn.execute("""

@@ -1,20 +1,20 @@
 # university_portal/blueprints/admin.py
 import re
 from flask import Blueprint, render_template, session, abort, request, redirect, url_for, make_response, g
-from db import get_db
-from repositories.users import get_user_by_id, get_user_by_username, get_all_users
-from repositories.objects import get_all_students, get_student_by_id, get_student_by_roll, get_all_teachers, get_teacher_by_id, get_teacher_by_staff_code
-from repositories.objects import get_all_courses, get_course_by_id
-from repositories.audit import get_audit_logs, get_login_history
-from repositories.departments import get_all_departments, get_department_by_code
-from services.permissions import (
+from portal.db import get_db
+from portal.repositories.users import get_user_by_id, get_user_by_username, get_all_users
+from portal.repositories.objects import get_all_students, get_student_by_id, get_student_by_roll, get_all_teachers, get_teacher_by_id, get_teacher_by_staff_code
+from portal.repositories.objects import get_all_courses, get_course_by_id
+from portal.repositories.audit import get_audit_logs, get_login_history
+from portal.repositories.departments import get_all_departments, get_department_by_code
+from portal.services.permissions import (
     check_access, can_view_national_id, can_create_user,
     can_view_activity_log, can_view_reports,
 )
-from services.edits import edit_student_profile, edit_teacher_profile, edit_mark
-from services.user_management import create_user, deactivate_user, reset_password
-from security import validate_email, meets_password_policy, decrypt_national_id
-from audit import write_audit
+from portal.services.edits import edit_student_profile, edit_teacher_profile, edit_mark
+from portal.services.user_management import create_user, deactivate_user, reset_password
+from portal.security import validate_email, meets_password_policy, decrypt_national_id
+from portal.audit import write_audit
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -117,7 +117,7 @@ def edit_student(student_id):
         if changed is None:
             abort(404)
         student = get_student_by_id(student_id)
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             enrolments = conn.execute("""
@@ -137,7 +137,7 @@ def edit_student(student_id):
         return render_template("admin/student_detail.html", student=student, enrolments=enrolments,
                                success="Student updated", changed=changed, departments=get_all_departments())
 
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments = conn.execute("""
@@ -291,7 +291,7 @@ def edit_course_marks(course_id):
     if not course:
         abort(404)
 
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
 
     if request.method == "POST":
@@ -818,7 +818,7 @@ def reports():
     g.user = user
     check_access(user, required_role=("admin", "hod", "teacher"), action_label="view reports")
 
-    from services.reports import (
+    from portal.services.reports import (
         avg_marks_per_branch, students_above_branch_average,
         courses_with_highest_average, second_highest_mark,
         second_highest_mark_student_course, students_above_overall_average,

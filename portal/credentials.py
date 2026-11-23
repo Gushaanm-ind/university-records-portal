@@ -2,7 +2,8 @@
 """
 Single writer and checker for CREDENTIALS.txt.
 
-Both seed.py and set_demo_passwords.py go through write_credentials_file(), so
+Both scripts/seed.py and scripts/set_demo_passwords.py go through
+write_credentials_file(), so
 the file can never drift from the database: accounts, names, branches and the
 headline counts are all read from the live tables, and the file records when it
 was generated.
@@ -16,7 +17,10 @@ import os
 import re
 from datetime import datetime, timezone
 
-DEFAULT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "CREDENTIALS.txt")
+# CREDENTIALS.txt lives in the project root, one level above this package.
+DEFAULT_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "CREDENTIALS.txt"
+)
 
 # Roll numbers are TEXT; sort them numerically on either engine.
 def _roll_order(engine_name):
@@ -42,9 +46,9 @@ def write_credentials_file(passwords, conn=None, path=None):
 
     passwords: dict of username -> plain-text password.
     conn:      optional open sqlite3 connection (one is opened if omitted).
-    path:      optional output path (defaults to CREDENTIALS.txt beside this file).
+    path:      optional output path (defaults to CREDENTIALS.txt in the project root).
     """
-    from db import get_db, engine
+    from portal.db import get_db, engine
 
     path = path or DEFAULT_PATH
     own_connection = conn is None
@@ -97,7 +101,7 @@ def write_credentials_file(passwords, conn=None, path=None):
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     try:
-        from config import Config
+        from portal.config import Config
 
         if engine() == "mysql":
             database_label = f"{Config.MYSQL_DATABASE} (MySQL)"
@@ -193,8 +197,8 @@ def verify_credentials_file(path=None):
 
     Returns (ok, problems): problems is a list of human-readable strings.
     """
-    from db import get_db
-    from security import verify_password
+    from portal.db import get_db
+    from portal.security import verify_password
 
     path = path or DEFAULT_PATH
     pairs = parse_credentials_file(path)

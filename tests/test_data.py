@@ -5,43 +5,43 @@ import pytest
 class TestData:
     def test_exactly_50_students(self):
         """There should be exactly 50 students."""
-        from repositories.objects import get_all_students
+        from portal.repositories.objects import get_all_students
         students = get_all_students()
         assert len(students) == 50, f"Expected 50 students, got {len(students)}"
 
     def test_exactly_1_admin(self):
         """There should be exactly 1 admin user."""
-        from repositories.users import get_users_by_role
+        from portal.repositories.users import get_users_by_role
         admins = get_users_by_role("admin")
         assert len(admins) == 1, f"Expected 1 admin, got {len(admins)}"
 
     def test_exactly_1_hod(self):
         """There should be exactly 1 HOD user."""
-        from repositories.users import get_users_by_role
+        from portal.repositories.users import get_users_by_role
         hods = get_users_by_role("hod")
         assert len(hods) == 1, f"Expected 1 HOD, got {len(hods)}"
 
     def test_exactly_6_teachers(self):
         """There should be exactly 6 teacher users."""
-        from repositories.users import get_users_by_role
+        from portal.repositories.users import get_users_by_role
         teachers = get_users_by_role("teacher")
         assert len(teachers) == 6, f"Expected 6 teachers, got {len(teachers)}"
 
     def test_exactly_4_branches(self):
         """There should be exactly 4 departments."""
-        from repositories.departments import get_all_departments
+        from portal.repositories.departments import get_all_departments
         depts = get_all_departments()
         assert len(depts) == 4, f"Expected 4 departments, got {len(depts)}"
 
     def test_exactly_12_courses(self):
         """There should be exactly 12 courses."""
-        from repositories.objects import get_all_courses
+        from portal.repositories.objects import get_all_courses
         courses = get_all_courses()
         assert len(courses) == 12, f"Expected 12 courses, got {len(courses)}"
 
     def test_marks_in_range(self):
         """All marks should be between 0 and 100 or NULL."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             rows = conn.execute(
@@ -53,7 +53,7 @@ class TestData:
 
     def test_every_course_has_teacher_and_branch(self):
         """Every course should have a teacher and a department."""
-        from repositories.objects import get_all_courses
+        from portal.repositories.objects import get_all_courses
         courses = get_all_courses()
         for c in courses:
             assert c["teacher_id"] is not None, f"Course {c['code']} has no teacher"
@@ -61,7 +61,7 @@ class TestData:
 
     def test_foreign_keys_hold(self):
         """All foreign keys should be valid."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             # enrollments → students
@@ -116,7 +116,7 @@ class TestData:
 
     def test_pragma_foreign_keys_is_on(self):
         """PRAGMA foreign_keys should be ON."""
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             result = conn.execute("PRAGMA foreign_keys").fetchone()
@@ -126,7 +126,7 @@ class TestData:
 
     def test_practical_students_exist(self):
         """The 5 practical students should exist with correct details."""
-        from repositories.objects import get_student_by_roll
+        from portal.repositories.objects import get_student_by_roll
         assert get_student_by_roll("101") is not None
         assert get_student_by_roll("101")["name"] == "Aman Verma"
         assert get_student_by_roll("102") is not None
@@ -140,7 +140,7 @@ class TestData:
 
     def test_practical_teachers_exist(self):
         """The 6 practical teachers should exist."""
-        from repositories.objects import get_teacher_by_staff_code
+        from portal.repositories.objects import get_teacher_by_staff_code
         assert get_teacher_by_staff_code("T001") is not None
         assert get_teacher_by_staff_code("T001")["name"] == "Mr. Sharma"
         assert get_teacher_by_staff_code("T002") is not None
@@ -156,7 +156,7 @@ class TestData:
 
     def test_practical_courses_exist(self):
         """C101-C104 should exist with correct teachers."""
-        from repositories.objects import get_course_by_id
+        from portal.repositories.objects import get_course_by_id
         c101 = get_course_by_id(1)
         assert c101 is not None
         assert c101["code"] == "C101"

@@ -3,8 +3,8 @@
 login_history should contain sign-in attempts only, each labelled correctly,
 and every audit row should name the account that acted.
 """
-from db import get_db
-from repositories.audit import get_audit_logs, get_login_history
+from portal.db import get_db
+from portal.repositories.audit import get_audit_logs, get_login_history
 
 
 def _history(username):

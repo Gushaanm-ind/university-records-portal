@@ -1,9 +1,9 @@
 # university_portal/blueprints/student.py
 from flask import Blueprint, render_template, session, abort, redirect, url_for, request, g
-from repositories.users import get_user_by_id
-from repositories.objects import get_student_by_id
-from repositories.audit import get_login_history_for_user
-from services.permissions import check_access, student_owns_record
+from portal.repositories.users import get_user_by_id
+from portal.repositories.objects import get_student_by_id
+from portal.repositories.audit import get_login_history_for_user
+from portal.services.permissions import check_access, student_owns_record
 
 student_bp = Blueprint("student", __name__)
 
@@ -23,7 +23,7 @@ def index():
     student = get_student_by_id(sid)
     if not student:
         abort(404)
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments = conn.execute("""
@@ -73,10 +73,10 @@ def view_other_student(student_id):
     g.user = user
     if request.method == "POST":
         # Students may never edit anything, including their own record.
-        from services.permissions import _deny
+        from portal.services.permissions import _deny
         _deny(user, f"student attempted to edit student {student_id}")
     if not student_owns_record(student_id, user):
-        from services.permissions import _deny
+        from portal.services.permissions import _deny
         _deny(user, f"view student {student_id}")
     student = get_student_by_id(student_id)
     if not student:

@@ -75,29 +75,32 @@ Every route checks the role; a tampered URL returns 403 and writes an
 
 ```bash
 ./run.sh test     # 220 pytest tests, each on a fresh temporary database
-./venv/bin/python tools/smoke_test.py   # end-to-end login as all four roles
+./venv/bin/python scripts/smoke_test.py   # end-to-end login as all four roles
 ```
 
 ## Project layout
 
 ```
 app.py              Flask app factory, security headers, error pages
-config.py           environment-driven settings
-db.py               SQLite/MySQL connection layer
-schema.sql          database schema (schema_mysql.sql for MySQL)
-seed.py             builds sample data + CREDENTIALS.txt
-set_demo_passwords.py  fixed demo passwords, --verify
-security.py         password hashing, Fernet encryption
-audit.py            audit trail writer
-repositories/       SQL queries
-services/           business rules (auth, permissions, edits, reports)
-blueprints/         routes per role (auth, dashboard, student, teacher, hod, admin)
-templates/          Jinja2 pages
-static/style.css    design system
-static/app.js       interface behaviour (menu, filters, copy, password tools)
-tests/              220 pytest cases
-tools/              show_tables.py, smoke_test.py
 run.sh              one-command launcher
+requirements.txt    Python dependencies
+
+portal/             the application package
+  config.py           environment-driven settings
+  db.py               SQLite/MySQL connection layer
+  schema.sql          database schema (schema_mysql.sql for MySQL)
+  security.py         password hashing, Fernet encryption
+  audit.py            audit trail writer
+  credentials.py      CREDENTIALS.txt writer and checker
+  repositories/       SQL queries
+  services/           business rules (auth, permissions, edits, reports)
+  blueprints/         routes per role (auth, dashboard, student, teacher, hod, admin)
+  templates/          Jinja2 pages
+  static/             style.css design system, app.js interface behaviour
+
+scripts/            seed.py, set_demo_passwords.py, show_tables.py, smoke_test.py
+tests/              220 pytest cases
+docs/               GUIDE.md, REFERENCE.md, HANDOFF.md
 ```
 
 ## Security notes
@@ -113,6 +116,6 @@ database design and seed details.
 
 ## Docs
 
-- [`GUIDE.md`](GUIDE.md) — short step-by-step usage guide
+- [`docs/GUIDE.md`](docs/GUIDE.md) — short step-by-step usage guide
 - [`docs/REFERENCE.md`](docs/REFERENCE.md) — detailed reference (design, security, data, MySQL)
-- [`HANDOFF.md`](HANDOFF.md) — current verified state and open items
+- [`docs/HANDOFF.md`](docs/HANDOFF.md) — current verified state and open items

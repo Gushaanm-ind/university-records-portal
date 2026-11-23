@@ -5,7 +5,7 @@ import pytest
 class TestAudit:
     def test_login_success_is_logged(self, admin_client):
         """A successful login should create a LOGIN_SUCCESS audit entry."""
-        from repositories.audit import get_audit_logs
+        from portal.repositories.audit import get_audit_logs
         logs = get_audit_logs({"action": "LOGIN_SUCCESS", "username": "admin"})
         # Note: the audit log stores actor_username from the session, not a filter param
         logs_all = get_audit_logs()
@@ -14,7 +14,7 @@ class TestAudit:
 
     def test_login_failure_is_logged(self, client):
         """A failed login should create a LOGIN_FAILED audit entry."""
-        from repositories.audit import get_audit_logs
+        from portal.repositories.audit import get_audit_logs
         client.post("/login", data={"username": "nonexistent", "password": "wrong"})
         logs = get_audit_logs()
         login_failed = [l for l in logs if l["action"] == "LOGIN_FAILED"]
@@ -23,9 +23,9 @@ class TestAudit:
     def test_edit_student_writes_audit(self, admin_client, hod_client):
         """Editing a student should write EDIT_STUDENT audit with old/new values."""
         # HOD edits student 101
-        from repositories.audit import get_audit_logs
-        from db import get_db
-        from security import hash_password
+        from portal.repositories.audit import get_audit_logs
+        from portal.db import get_db
+        from portal.security import hash_password
 
         # First set password for HOD
         conn = get_db()
@@ -59,9 +59,9 @@ class TestAudit:
 
     def test_edit_teacher_writes_audit(self, admin_client):
         """Editing a teacher should write EDIT_TEACHER audit with old/new values."""
-        from repositories.audit import get_audit_logs
-        from db import get_db
-        from security import hash_password
+        from portal.repositories.audit import get_audit_logs
+        from portal.db import get_db
+        from portal.security import hash_password
 
         conn = get_db()
         try:
@@ -107,7 +107,7 @@ class TestAudit:
 
     def test_view_sensitive_writes_audit(self, admin_client):
         """Revealing national ID should write VIEW_SENSITIVE audit."""
-        from repositories.audit import get_audit_logs
+        from portal.repositories.audit import get_audit_logs
         resp = admin_client.post("/admin/national-id/1")
         assert resp.status_code == 200
 

@@ -7,13 +7,13 @@ set_demo_passwords.py use, so the two files cannot drift apart again.
 """
 import os
 
-from credentials import (
+from portal.credentials import (
     NOT_RECORDED,
     parse_credentials_file,
     verify_credentials_file,
     write_credentials_file,
 )
-from db import get_db
+from portal.db import get_db
 
 # conftest gives every account in the test database this one password.
 TEST_PASSWORD = "testpass123!"

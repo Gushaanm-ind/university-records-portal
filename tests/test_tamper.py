@@ -58,7 +58,7 @@ class TestTamper:
 
     def test_access_denied_audit_logged(self, app, db_file):
         """Verify ACCESS_DENIED is written to audit_log when a student is blocked."""
-        from repositories.audit import get_audit_logs
+        from portal.repositories.audit import get_audit_logs
 
         c = app.test_client()
         c.post("/login", data={"username": "101", "password": "testpass123!"})

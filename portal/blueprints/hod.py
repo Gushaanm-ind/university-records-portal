@@ -1,14 +1,14 @@
 # university_portal/blueprints/hod.py
 from flask import Blueprint, render_template, session, abort, request, redirect, url_for, g
-from repositories.users import get_user_by_id
-from repositories.objects import get_all_students, get_student_by_id, get_all_teachers, get_teacher_by_id
-from repositories.objects import get_all_courses, get_course_by_id
-from repositories.audit import get_login_history_for_user, get_login_history
-from repositories.departments import get_all_departments, get_department_by_code
-from services.permissions import check_access
-from services.edits import edit_student_profile, edit_teacher_profile, edit_mark
-from security import validate_email
-from audit import write_audit
+from portal.repositories.users import get_user_by_id
+from portal.repositories.objects import get_all_students, get_student_by_id, get_all_teachers, get_teacher_by_id
+from portal.repositories.objects import get_all_courses, get_course_by_id
+from portal.repositories.audit import get_login_history_for_user, get_login_history
+from portal.repositories.departments import get_all_departments, get_department_by_code
+from portal.services.permissions import check_access
+from portal.services.edits import edit_student_profile, edit_teacher_profile, edit_mark
+from portal.security import validate_email
+from portal.audit import write_audit
 
 hod_bp = Blueprint("hod", __name__)
 
@@ -25,7 +25,7 @@ def index():
     all_students = get_all_students()
     all_teachers = get_all_teachers()
     all_courses = get_all_courses()
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments_count = conn.execute("SELECT COUNT(*) FROM enrollments").fetchone()[0]
@@ -100,7 +100,7 @@ def edit_student(student_id):
         if changed is None:
             abort(404)
         student = get_student_by_id(student_id)
-        from db import get_db
+        from portal.db import get_db
         conn = get_db()
         try:
             enrolments = conn.execute("""
@@ -120,7 +120,7 @@ def edit_student(student_id):
         return render_template("hod/student_detail.html", student=student, enrolments=enrolments,
                                success="Student updated", changed=changed, departments=get_all_departments())
 
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
     try:
         enrolments = conn.execute("""
@@ -242,7 +242,7 @@ def edit_course_marks(course_id):
     if not course:
         abort(404)
 
-    from db import get_db
+    from portal.db import get_db
     conn = get_db()
 
     if request.method == "POST":

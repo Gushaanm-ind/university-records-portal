@@ -133,8 +133,8 @@ ensure_db() {
   [ "${DB_ENGINE:-sqlite}" = "mysql" ] && return 0
   if [ ! -s university.db ]; then
     info "Creating the demo database and accounts (first run only)..."
-    "$PY" seed.py >/dev/null || { echo "seed.py failed." >&2; exit 1; }
-    "$PY" set_demo_passwords.py >/dev/null || { echo "set_demo_passwords.py failed." >&2; exit 1; }
+    "$PY" scripts/seed.py >/dev/null || { echo "scripts/seed.py failed." >&2; exit 1; }
+    "$PY" scripts/set_demo_passwords.py >/dev/null || { echo "scripts/set_demo_passwords.py failed." >&2; exit 1; }
   fi
 }
 
@@ -212,10 +212,10 @@ verify() {
   ensure_venv
   ensure_deps
   echo "Tables:"
-  "$PY" tools/show_tables.py --list
+  "$PY" scripts/show_tables.py --list
   echo
   echo "Accounts vs CREDENTIALS.txt:"
-  "$PY" set_demo_passwords.py --verify
+  "$PY" scripts/set_demo_passwords.py --verify
 }
 
 reset() {
@@ -224,7 +224,7 @@ reset() {
   rm -f university.db
   ensure_venv
   ensure_deps
-  "$PY" seed.py && "$PY" set_demo_passwords.py && "$PY" set_demo_passwords.py --verify
+  "$PY" scripts/seed.py && "$PY" scripts/set_demo_passwords.py && "$PY" scripts/set_demo_passwords.py --verify
 }
 
 usage() {

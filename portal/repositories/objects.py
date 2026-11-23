@@ -1,5 +1,5 @@
 # university_portal/repositories/objects.py
-from db import get_db
+from portal.db import get_db
 
 
 def get_all_teachers():

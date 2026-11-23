@@ -1,4 +1,4 @@
-# university_portal/seed.py
+# university_portal/scripts/seed.py
 """
 Seed the university database with departments, teachers, students, courses,
 enrolments, and user accounts. Writes CREDENTIALS.txt.
@@ -7,9 +7,15 @@ Safe to run twice: clears users/students/teachers/courses/enrolments and re-seed
 import os
 import sys
 import random
-from db import get_db, init_db, using_mysql
-from credentials import write_credentials_file as write_credentials
-from security import hash_password, generate_random_password, encrypt_national_id
+
+# Running this file as a script puts scripts/ on sys.path, not the project root.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from portal.db import get_db, init_db, using_mysql
+from portal.credentials import write_credentials_file as write_credentials
+from portal.security import hash_password, generate_random_password, encrypt_national_id
 
 random.seed(42)
 
@@ -261,4 +267,4 @@ def seed(write_credentials_file=True):
 if __name__ == "__main__":
     seed()
     print("Seed complete.")
-    print("Next: python set_demo_passwords.py  (sets the simple demo passwords)")
+    print("Next: python scripts/set_demo_passwords.py  (sets the simple demo passwords)")

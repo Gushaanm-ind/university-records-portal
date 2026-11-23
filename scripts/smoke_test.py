@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tools/smoke_test.py — logs in as admin, HOD, one teacher, and one student
+scripts/smoke_test.py — logs in as admin, HOD, one teacher, and one student
 using the seeded accounts, visits every page, prints a status table, and
 exits non-zero on any unexpected status.
 """
@@ -21,7 +21,7 @@ if not os.environ.get("SECRET_KEY"):
 # Override DB to temp — only meaningful for SQLite. MySQL mode uses the
 # configured server instead, which this script reseeds and rewrites passwords
 # for, so it refuses to touch MySQL unless SMOKE_ALLOW_MYSQL=1 is set.
-import config
+from portal import config
 import tempfile
 original_db = config.Config.DATABASE
 db_path = os.path.join(tempfile.gettempdir(), f"smoke_{uuid.uuid4().hex}.db")
@@ -31,7 +31,7 @@ if (os.environ.get("DB_ENGINE") or "sqlite").strip().lower() == "mysql":
             "Refusing to run: DB_ENGINE=mysql, and this script reseeds and changes "
             "passwords. Set SMOKE_ALLOW_MYSQL=1 to run it against "
             f"{os.environ.get('MYSQL_DATABASE', 'university_db')}, then restore the "
-            "demo passwords with: python set_demo_passwords.py"
+            "demo passwords with: python scripts/set_demo_passwords.py"
         )
     print(f"Running against MySQL: {os.environ.get('MYSQL_DATABASE', 'university_db')} "
           "(this reseeds the database)\n")
@@ -39,9 +39,9 @@ else:
     config.Config.DATABASE = db_path
 
 from app import create_app
-from seed import seed
-from db import get_db
-from security import hash_password
+from scripts.seed import seed
+from portal.db import get_db
+from portal.security import hash_password
 
 # Seed the database
 seed(write_credentials_file=False)
@@ -97,7 +97,7 @@ def run_smoke(role, username, pages):
     return all_ok
 
 
-from repositories.objects import get_all_students, get_all_courses, get_all_teachers
+from portal.repositories.objects import get_all_students, get_all_courses, get_all_teachers
 
 _first_student = get_all_students()[0]["id"]
 _first_teacher = get_all_teachers()[0]["id"]
