@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>{% block title %}University Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% if not session.user_id %}body-auth{% else %}body-app{% endif %}">
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 16 11"/></symbol>
+    <symbol id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.5 12.5 8-8"/><path d="m16 4 3 3"/><path d="m18.5 6.5 2 2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M22 9 12 4 2 9l10 5 10-5Z"/><path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></symbol>
+</svg>
+
+{% if session.user_id %}
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+        <div class="sidebar-brand">
+            <a href="{{ url_for('dashboard.index') }}" class="brand-link">
+                <span class="brand-mark"><svg class="icon"><use href="#i-graduation"/></svg></span>
+                <span class="brand-text">
+                    <strong>University</strong>
+                    <small>Records Portal</small>
+                </span>
+            </a>
+        </div>
+
+        <nav class="side-nav">
+            <p class="nav-group-label">Overview</p>
+            {% if session.role == 'admin' %}
+                <a href="{{ url_for('admin.index') }}" class="nav-item {% if request.endpoint == 'admin.index' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-grid"/></svg><span>Dashboard</span>
+                </a>
+            {% elif session.role == 'hod' %}
+                <a href="{{ url_for('hod.index') }}" class="nav-item {% if request.endpoint == 'hod.index' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-grid"/></svg><span>Dashboard</span>
+                </a>
+            {% elif session.role == 'teacher' %}
+                <a href="{{ url_for('teacher.index') }}" class="nav-item {% if request.endpoint == 'teacher.index' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-grid"/></svg><span>Dashboard</span>
+                </a>
+            {% elif session.role == 'student' %}
+                <a href="{{ url_for('student.index') }}" class="nav-item {% if request.endpoint == 'student.index' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-grid"/></svg><span>Dashboard</span>
+                </a>
+            {% endif %}
+
+            {% if session.role in ('admin', 'hod', 'teacher') %}
+                <p class="nav-group-label">Academics</p>
+                {% if session.role == 'admin' %}
+                    <a href="{{ url_for('admin.list_students') }}" class="nav-item {% if request.endpoint in ('admin.list_students', 'admin.edit_student') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-users"/></svg><span>Students</span>
+                    </a>
+                    <a href="{{ url_for('admin.list_teachers') }}" class="nav-item {% if request.endpoint in ('admin.list_teachers', 'admin.edit_teacher') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-user-check"/></svg><span>Teachers</span>
+                    </a>
+                    <a href="{{ url_for('admin.list_courses') }}" class="nav-item {% if request.endpoint in ('admin.list_courses', 'admin.edit_course_marks') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-book"/></svg><span>Courses</span>
+                    </a>
+                {% elif session.role == 'hod' %}
+                    <a href="{{ url_for('hod.list_students') }}" class="nav-item {% if request.endpoint in ('hod.list_students', 'hod.edit_student') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-users"/></svg><span>Students</span>
+                    </a>
+                    <a href="{{ url_for('hod.list_teachers') }}" class="nav-item {% if request.endpoint in ('hod.list_teachers', 'hod.edit_teacher') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-user-check"/></svg><span>Teachers</span>
+                    </a>
+                    <a href="{{ url_for('hod.list_courses') }}" class="nav-item {% if request.endpoint in ('hod.list_courses', 'hod.edit_course_marks') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-book"/></svg><span>Courses</span>
+                    </a>
+                {% elif session.role == 'teacher' %}
+                    <a href="{{ url_for('teacher.list_students') }}" class="nav-item {% if request.endpoint in ('teacher.list_students', 'teacher.view_student') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-users"/></svg><span>Students</span>
+                    </a>
+                    <a href="{{ url_for('teacher.list_courses') }}" class="nav-item {% if request.endpoint in ('teacher.list_courses', 'teacher.view_course') %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-book"/></svg><span>Courses</span>
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('admin.reports') }}" class="nav-item {% if request.endpoint == 'admin.reports' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-chart"/></svg><span>Reports</span>
+                </a>
+            {% endif %}
+
+            {% if session.role in ('admin', 'hod') %}
+                <p class="nav-group-label">Records &amp; audit</p>
+                {% if session.role == 'admin' %}
+                    <a href="{{ url_for('admin.activity_log') }}" class="nav-item {% if request.endpoint == 'admin.activity_log' %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-activity"/></svg><span>Activity log</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_login_history') }}" class="nav-item {% if request.endpoint == 'admin.admin_login_history' %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-clock"/></svg><span>Login history</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('hod.login_history') }}" class="nav-item {% if request.endpoint == 'hod.login_history' %}is-active{% endif %}">
+                        <svg class="icon"><use href="#i-clock"/></svg><span>Login history</span>
+                    </a>
+                {% endif %}
+            {% endif %}
+
+            {% if session.role == 'admin' %}
+                <p class="nav-group-label">Administration</p>
+                <a href="{{ url_for('admin.list_users') }}" class="nav-item {% if request.endpoint in ('admin.list_users', 'admin.create_user_view', 'admin.deactivate_user_view', 'admin.activate_user_view', 'admin.reset_password_view') %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-shield"/></svg><span>User accounts</span>
+                </a>
+            {% endif %}
+
+            <p class="nav-group-label">Account</p>
+            {% if session.role == 'admin' %}
+                <a href="{{ url_for('admin.admin_profile') }}" class="nav-item {% if request.endpoint == 'admin.admin_profile' %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-user"/></svg><span>My profile</span>
+                </a>
+            {% elif session.role == 'student' %}
+                <a href="{{ url_for('student.profile') }}" class="nav-item {% if request.endpoint in ('student.profile', 'student.view_other_student') %}is-active{% endif %}">
+                    <svg class="icon"><use href="#i-user"/></svg><span>My profile</span>
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.change_password') }}" class="nav-item {% if request.endpoint == 'auth.change_password' %}is-active{% endif %}">
+                <svg class="icon"><use href="#i-key"/></svg><span>Password</span>
+            </a>
+        </nav>
+
+        {% if session.role == 'admin' %}
+        <a href="{{ url_for('admin.create_user_view') }}" class="btn btn-primary sidebar-cta">
+            <svg class="icon"><use href="#i-plus"/></svg><span>New user</span>
+        </a>
+        {% endif %}
+
+        <div class="sidebar-user">
+            <span class="avatar avatar-sm">{{ session.username[0]|upper }}</span>
+            <span class="sidebar-user-text">
+                <strong>{{ session.username }}</strong>
+                <span class="role-chip role-chip-{{ session.role }}">{{ session.role }}</span>
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="icon-btn icon-btn-inverse" title="Sign out" aria-label="Sign out">
+                <svg class="icon"><use href="#i-logout"/></svg>
+            </a>
+        </div>
+    </aside>
+
+    <div class="sidebar-backdrop" data-sidebar-close></div>
+
+    <div class="content-area">
+        <header class="topbar">
+            <button type="button" class="icon-btn nav-toggle" data-sidebar-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">
+                <svg class="icon"><use href="#i-menu"/></svg>
+            </button>
+            <div class="topbar-titles">
+                <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                {% block page_subtitle %}{% endblock %}
+            </div>
+            <div class="topbar-actions">
+                <span class="topbar-date" data-today></span>
+                <span class="topbar-user">
+                    <span class="avatar avatar-sm">{{ session.username[0]|upper }}</span>
+                    <span class="topbar-user-name">{{ session.username }}</span>
+                </span>
+            </div>
+        </header>
+
+{% endif %}
+
+    <main class="{% if session.user_id %}main{% else %}auth-shell{% endif %}">
+            {% if error %}
+                <div class="alert alert-error" role="alert">
+                    <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+                    <span>{{ error }}</span>
+                </div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success" role="status">
+                    <svg class="icon alert-icon"><use href="#i-check"/></svg>
+                    <span>{{ success }}</span>
+                </div>
+            {% endif %}
+            {% if warning %}
+                <div class="alert alert-warning" role="alert">
+                    <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+                    <span>{{ warning }}</span>
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+    </main>
+
+{% if session.user_id %}
+        <footer class="footer">
+            <span>University Records Portal</span>
+            <span class="footer-dot">&middot;</span>
+            <span>Demo system &mdash; DBMS practical build</span>
+        </footer>
+    </div>
+</div>
+{% endif %}
+</body>
+</html>

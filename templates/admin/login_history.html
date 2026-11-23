@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Login History - University Portal{% endblock %}
+{% block page_title %}Login history{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ logs|length }} sign-in attempts</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Sign-in attempts</h2>
+        <p>Successful and failed sign-ins, with the IP address that made them.</p>
+    </div>
+</div>
+
+<form method="GET" class="search-form">
+    <div class="input-wrap">
+        <svg class="icon input-icon-left"><use href="#i-search"/></svg>
+        <input type="text" name="username" placeholder="Filter by username" value="{{ username_filter }}"
+               data-filter-target="logins-table">
+    </div>
+    <select name="success">
+        <option value="">All attempts</option>
+        <option value="1" {% if success_filter == '1' %}selected{% endif %}>Successful only</option>
+        <option value="0" {% if success_filter == '0' %}selected{% endif %}>Failed only</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if username_filter or success_filter %}
+    <a href="{{ url_for('admin.admin_login_history') }}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+</form>
+
+{% if logs %}
+<div class="table-wrap">
+    <table class="table" id="logins-table">
+        <thead>
+            <tr><th>When</th><th>Username</th><th>Result</th><th>IP address</th></tr>
+        </thead>
+        <tbody>
+            {% for entry in logs %}
+            <tr>
+                <td class="cell-mono text-muted">{{ entry.logged_in_at[:19]|replace('T', ' ') }}</td>
+                <td class="cell-strong cell-mono">{{ entry.username }}</td>
+                <td>
+                    {% if entry.success %}
+                        <span class="badge badge-success badge-dot">Success</span>
+                    {% else %}
+                        <span class="badge badge-danger badge-dot">Failed</span>
+                    {% endif %}
+                </td>
+                <td class="cell-mono text-muted">{{ entry.ip_address or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-clock"/></svg>
+    <strong>No sign-in attempts found</strong>
+    Adjust the filters to see more.
+</div>
+{% endif %}
+{% endblock %}

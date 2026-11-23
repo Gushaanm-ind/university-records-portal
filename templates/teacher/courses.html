@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}All Courses - University Portal{% endblock %}
+{% block page_title %}Courses{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ courses|length }} courses</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Course catalogue</h2>
+        <p>Read-only view of every course and its students.</p>
+    </div>
+</div>
+
+{% if courses %}
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr><th>Code</th><th>Title</th><th>Credits</th><th>Teacher</th><th>Branch</th><th class="cell-actions">Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for c in courses %}
+            <tr>
+                <td class="cell-mono">{{ c.code }}</td>
+                <td class="cell-strong">{{ c.title }}</td>
+                <td class="cell-num text-muted">{{ c.credits }}</td>
+                <td>{{ c.teacher_name }} <span class="text-muted">({{ c.staff_code }})</span></td>
+                <td><span class="badge badge-{{ c.dept_code }}">{{ c.dept_code }} &middot; {{ c.dept_name }}</span></td>
+                <td class="cell-actions">
+                    <a href="{{ url_for('teacher.view_course', course_id=c.id) }}" class="btn btn-sm btn-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-book"/></svg>
+    <strong>No courses yet</strong>
+    Seed the database to load the course catalogue.
+</div>
+{% endif %}
+{% endblock %}

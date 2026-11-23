@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Activity Log - University Portal{% endblock %}
+{% block page_title %}Activity log{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ logs|length }} entries</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Audit trail</h2>
+        <p>Every login, edit, export and denied request, newest first.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('admin.export_activity_csv',
+                            username=username_filter,
+                            action=action_filter,
+                            start_date=start_date,
+                            end_date=end_date) }}"
+           class="btn btn-secondary">
+            <svg class="icon"><use href="#i-copy"/></svg> Export CSV
+        </a>
+    </div>
+</div>
+
+<form method="GET" class="search-form">
+    <input type="text" name="username" placeholder="Filter by user" value="{{ username_filter }}">
+    <select name="action">
+        <option value="">All actions</option>
+        {% for action in ['LOGIN_SUCCESS','LOGIN_FAILED','LOGOUT','ACCOUNT_LOCKED',
+                          'EDIT_STUDENT','EDIT_TEACHER','EDIT_MARK','EDIT_PROFILE',
+                          'CREATE_USER','DEACTIVATE_USER','ACTIVATE_USER','PASSWORD_RESET',
+                          'PASSWORD_CHANGE','ACCESS_DENIED','VIEW_SENSITIVE','EXPORT_CSV'] %}
+        <option value="{{ action }}" {% if action_filter == action %}selected{% endif %}>{{ action }}</option>
+        {% endfor %}
+    </select>
+    <input type="date" name="start_date" value="{{ start_date }}" aria-label="From date">
+    <input type="date" name="end_date" value="{{ end_date }}" aria-label="To date">
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    <a href="{{ url_for('admin.activity_log') }}" class="btn btn-ghost">Clear</a>
+</form>
+
+{% if logs %}
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>When</th>
+                <th>Who</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>From</th>
+                <th>To</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td class="cell-mono text-muted">{{ log.occurred_at[:19]|replace('T', ' ') }}</td>
+                <td class="cell-strong">{{ log.actor_username }}</td>
+                <td><span class="badge badge-{{ log.actor_role }}">{{ log.actor_role }}</span></td>
+                <td><span class="badge badge-action">{{ log.action }}</span></td>
+                <td>{{ log.target_label or (log.target_type ~ ' ' ~ log.target_id) or '—' }}</td>
+                <td class="text-muted">{{ log.old_value or '—' }}</td>
+                <td>{{ log.new_value or '—' }}</td>
+                <td class="cell-mono text-muted">{{ log.ip_address or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-activity"/></svg>
+    <strong>No activity entries found</strong>
+    Adjust the filters, or wait for users to interact with the portal.
+</div>
+{% endif %}
+{% endblock %}

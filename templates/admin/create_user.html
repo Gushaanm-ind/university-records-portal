@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Create User - University Portal{% endblock %}
+{% block page_title %}Create user{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Add a student, teacher, HOD or admin account</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>New account</h2>
+        <p>Students and teachers get a matching record in the database automatically.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary">Back to accounts</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error" role="alert">
+    <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+    <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<form method="POST" id="create-user-form" data-busy>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="card">
+        <p class="form-section-title">Account type</p>
+        <div class="role-picker">
+            {% for value, label, hint, icon in [
+                ('student', 'Student', 'Signs in with a roll number', '#i-users'),
+                ('teacher', 'Teacher', 'Signs in with a staff code', '#i-user-check'),
+                ('hod', 'HOD', 'Department head access', '#i-shield'),
+                ('admin', 'Admin', 'Full system access', '#i-graduation')
+            ] %}
+            <label class="role-option">
+                <input type="radio" name="role" id="role" value="{{ value }}"
+                       {% if role == value %}checked{% endif %} required>
+                <span class="role-option-icon"><svg class="icon"><use href="{{ icon }}"/></svg></span>
+                {{ label }}
+                <span>{{ hint }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="form-section-title">Sign-in details</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="username" id="username-label">Username (used to sign in)</label>
+                <input type="text" id="username" name="username" required maxlength="64"
+                       value="{{ username or '' }}" autocomplete="off">
+                <p class="field-hint" id="username-hint">Pick the login name for this account.</p>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div style="display: flex; gap: 0.45rem;">
+                    <input type="password" id="password" name="password" required minlength="8"
+                           autocomplete="new-password">
+                    <button type="button" class="btn btn-secondary" id="generate-password">Generate</button>
+                </div>
+                <p class="field-hint" id="generated-hint" hidden>Password generated &mdash; copy it before saving.</p>
+                <p class="field-hint">At least 8 characters.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="form-section-title">Personal details</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="full_name">Full name</label>
+                <input type="text" id="full_name" name="full_name" maxlength="120"
+                       value="{{ full_name or '' }}" autocomplete="off">
+                <p class="field-hint">Required for students and teachers.</p>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" maxlength="254"
+                       value="{{ email or '' }}" autocomplete="off">
+                <p class="field-hint">Leave blank to use a university address.</p>
+            </div>
+            <div class="form-group" data-role-field="student teacher hod">
+                <label for="branch">Branch</label>
+                <select id="branch" name="branch" data-required-for="student teacher hod">
+                    <option value="">Select a branch</option>
+                    {% for d in departments %}
+                    <option value="{{ d.code }}" {% if branch_code == d.code %}selected{% endif %}>
+                        {{ d.name }} ({{ d.code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" data-role-field="teacher">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" maxlength="32"
+                       value="{{ phone or '' }}" placeholder="e.g. 9811100001"
+                       data-required-for="teacher" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create user</button>
+            <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary">Cancel</a>
+            <span class="spacer"></span>
+            <span class="help-text" style="margin: 0;">The account is active immediately.</span>
+        </div>
+    </div>
+</form>
+{% endblock %}

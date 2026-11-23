@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - University Portal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Welcome back, {{ session.username }} &mdash; here is the state of the university today.</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Overview</h2>
+        <p>Live counts straight from the database.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('admin.create_user_view') }}" class="btn btn-primary">
+            <svg class="icon"><use href="#i-plus"/></svg> Create user
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-secondary">
+            <svg class="icon"><use href="#i-chart"/></svg> Reports
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-icon tone-user"><svg class="icon"><use href="#i-shield"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_users|length }}</span>
+            <span class="stat-label">User accounts</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-graduation"><svg class="icon"><use href="#i-users"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_students|length }}</span>
+            <span class="stat-label">Students</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-teacher"><svg class="icon"><use href="#i-user-check"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_teachers|length }}</span>
+            <span class="stat-label">Teachers</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-course"><svg class="icon"><use href="#i-book"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_courses|length }}</span>
+            <span class="stat-label">Courses</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon"><svg class="icon"><use href="#i-graduation"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ enrolments_count }}</span>
+            <span class="stat-label">Enrolments</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-audit"><svg class="icon"><use href="#i-clock"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ login_history|length }}</span>
+            <span class="stat-label">Login events</span>
+        </span>
+    </div>
+</div>
+
+<div class="info-grid">
+    <section class="card mb-0">
+        <div class="section-head">
+            <h2>Recent activity</h2>
+            <a href="{{ url_for('admin.activity_log') }}" class="link-more">View full log</a>
+        </div>
+        {% if recent_logs %}
+        <div class="table-wrap" style="margin-bottom: 0; box-shadow: none;">
+            <table class="table">
+                <thead>
+                    <tr><th>When</th><th>Who</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td class="cell-mono">{{ log.occurred_at[:16]|replace('T', ' ') }}</td>
+                        <td>{{ log.actor_username }}</td>
+                        <td><span class="badge badge-action">{{ log.action }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg class="icon"><use href="#i-activity"/></svg>
+            <strong>No activity yet</strong>
+            Actions will appear here as people use the portal.
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="card mb-0">
+        <div class="section-head">
+            <h2>Accounts by role</h2>
+            <a href="{{ url_for('admin.list_users') }}" class="link-more">Manage</a>
+        </div>
+        <div class="role-bars">
+            {% for role_name, label in [('admin', 'Admins'), ('hod', 'HODs'), ('teacher', 'Teachers'), ('student', 'Students')] %}
+            {% set count = role_counts.get(role_name, 0) %}
+            <div class="role-bar-row">
+                <span class="role-name">{{ label }}</span>
+                <span class="role-bar-track">
+                    <span class="role-bar-fill role-{{ role_name }}"
+                          style="width: {{ ((count / all_users|length) * 100)|round(0)|int if all_users else 0 }}%"></span>
+                </span>
+                <span class="role-bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="notice mt-3">
+            <strong>{{ active_users }}</strong> active &middot;
+            <strong>{{ inactive_users }}</strong> deactivated &middot;
+            <strong>{{ graded_count }}</strong> graded enrolments
+        </div>
+    </section>
+</div>
+
+<section class="card">
+    <div class="section-head">
+        <h2>Quick actions</h2>
+    </div>
+    <div class="action-grid">
+        <a href="{{ url_for('admin.create_user_view') }}" class="action-tile action-tile-strong">
+            <svg class="icon"><use href="#i-plus"/></svg> Create a user
+        </a>
+        <a href="{{ url_for('admin.list_users') }}" class="action-tile">
+            <svg class="icon"><use href="#i-shield"/></svg> User accounts
+        </a>
+        <a href="{{ url_for('admin.list_students') }}" class="action-tile">
+            <svg class="icon"><use href="#i-users"/></svg> Students
+        </a>
+        <a href="{{ url_for('admin.list_courses') }}" class="action-tile">
+            <svg class="icon"><use href="#i-book"/></svg> Edit marks
+        </a>
+        <a href="{{ url_for('admin.activity_log') }}" class="action-tile">
+            <svg class="icon"><use href="#i-activity"/></svg> Activity log
+        </a>
+        <a href="{{ url_for('admin.admin_login_history') }}" class="action-tile">
+            <svg class="icon"><use href="#i-clock"/></svg> Login history
+        </a>
+    </div>
+</section>
+{% endblock %}

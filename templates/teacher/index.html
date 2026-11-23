@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard - University Portal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Signed in as {{ session.username }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Teaching overview</h2>
+        <p>Your courses and the students enrolled across the university.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('teacher.list_students') }}" class="btn btn-primary">
+            <svg class="icon"><use href="#i-users"/></svg> All students
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-secondary">
+            <svg class="icon"><use href="#i-chart"/></svg> Reports
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-icon tone-course"><svg class="icon"><use href="#i-book"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ courses|length }}</span>
+            <span class="stat-label">My courses</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-graduation"><svg class="icon"><use href="#i-users"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_students|length }}</span>
+            <span class="stat-label">All students</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-audit"><svg class="icon"><use href="#i-clock"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ login_history|length }}</span>
+            <span class="stat-label">My sign-ins</span>
+        </span>
+    </div>
+</div>
+
+<section class="card">
+    <div class="section-head">
+        <h2>My courses</h2>
+        <a href="{{ url_for('teacher.list_courses') }}" class="link-more">All courses</a>
+    </div>
+    {% if courses %}
+    <div class="table-wrap" style="margin-bottom: 0; box-shadow: none;">
+        <table class="table">
+            <thead>
+                <tr><th>Code</th><th>Title</th><th>Credits</th><th>Branch</th><th class="cell-actions">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for c in courses %}
+                <tr>
+                    <td class="cell-mono">{{ c.code }}</td>
+                    <td class="cell-strong">{{ c.title }}</td>
+                    <td class="cell-num text-muted">{{ c.credits }}</td>
+                    <td><span class="badge badge-{{ c.dept_code }}">{{ c.dept_code }}</span></td>
+                    <td class="cell-actions">
+                        <a href="{{ url_for('teacher.view_course', course_id=c.id) }}" class="btn btn-sm btn-secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg class="icon"><use href="#i-book"/></svg>
+        <strong>No courses assigned</strong>
+        Courses appear here once they are assigned to your staff code.
+    </div>
+    {% endif %}
+</section>
+
+<section class="card">
+    <div class="section-head">
+        <h2>Quick actions</h2>
+    </div>
+    <div class="action-grid">
+        <a href="{{ url_for('teacher.list_students') }}" class="action-tile">
+            <svg class="icon"><use href="#i-users"/></svg> Browse students
+        </a>
+        <a href="{{ url_for('teacher.list_courses') }}" class="action-tile">
+            <svg class="icon"><use href="#i-book"/></svg> Browse courses
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="action-tile">
+            <svg class="icon"><use href="#i-chart"/></svg> Reports
+        </a>
+        <a href="{{ url_for('auth.change_password') }}" class="action-tile">
+            <svg class="icon"><use href="#i-key"/></svg> Change password
+        </a>
+    </div>
+    <p class="notice mt-3 mb-0">Teacher accounts can view student records and marks, but cannot edit them.</p>
+</section>
+{% endblock %}

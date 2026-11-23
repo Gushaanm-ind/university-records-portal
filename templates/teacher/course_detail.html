@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Course: {{ course.code }} - University Portal{% endblock %}
+{% block page_title %}{{ course.code }} &mdash; {{ course.title }}{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ course.dept_name }} &middot; {{ course.credits }} credits</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Course detail</h2>
+        <p>Read-only view of the course and its enrolled students.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('teacher.list_courses') }}" class="btn btn-secondary">Back to courses</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="detail-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 1.5rem;">
+        <div class="detail-row"><span class="detail-label">Teacher</span>{{ course.teacher_name }} ({{ course.staff_code }})</div>
+        <div class="detail-row"><span class="detail-label">Branch</span>{{ course.dept_name }} ({{ course.dept_code }})</div>
+        <div class="detail-row"><span class="detail-label">Credits</span>{{ course.credits }}</div>
+        <div class="detail-row"><span class="detail-label">Enrolled</span>{{ enrolments|length }} students</div>
+    </div>
+</div>
+
+<div class="section-head">
+    <h2>Enrolled students</h2>
+</div>
+{% if enrolments %}
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr><th>Roll no</th><th>Name</th><th>Email</th><th>Branch</th><th>Marks</th></tr>
+        </thead>
+        <tbody>
+            {% for e in enrolments %}
+            <tr>
+                <td class="cell-mono">{{ e.roll_no }}</td>
+                <td class="cell-strong">{{ e.name }}</td>
+                <td class="text-muted">{{ e.email }}</td>
+                <td><span class="badge badge-{{ e.dept_code }}">{{ e.dept_code }}</span></td>
+                <td>
+                    {% if e.marks is none %}
+                        <span class="score-pill is-empty">Not graded</span>
+                    {% else %}
+                        <span class="score-pill">{{ e.marks }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-users"/></svg>
+    <strong>No students enrolled</strong>
+    This course has no enrolments yet.
+</div>
+{% endif %}
+{% endblock %}

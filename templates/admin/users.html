@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}User Management - University Portal{% endblock %}
+{% block page_title %}User accounts{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ total_users }} accounts &middot; {{ active_count }} active &middot; {{ inactive_count }} deactivated</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Manage access</h2>
+        <p>Create accounts, reset passwords and switch access on or off.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('admin.create_user_view') }}" class="btn btn-primary">
+            <svg class="icon"><use href="#i-plus"/></svg> New user
+        </a>
+    </div>
+</div>
+
+<div class="filter-pills">
+    <a href="{{ url_for('admin.list_users', status=status_filter) }}"
+       class="filter-pill {% if not role_filter %}is-active{% endif %}">
+        All roles <span class="count">{{ total_users }}</span>
+    </a>
+    {% for role_name, label in [('admin', 'Admins'), ('hod', 'HODs'), ('teacher', 'Teachers'), ('student', 'Students')] %}
+    <a href="{{ url_for('admin.list_users', role=role_name, status=status_filter) }}"
+       class="filter-pill {% if role_filter == role_name %}is-active{% endif %}">
+        {{ label }} <span class="count">{{ role_counts.get(role_name, 0) }}</span>
+    </a>
+    {% endfor %}
+</div>
+
+<form method="GET" class="search-form">
+    <div class="input-wrap">
+        <svg class="icon input-icon-left"><use href="#i-search"/></svg>
+        <input type="text" name="search" placeholder="Search username" value="{{ search }}"
+               data-filter-target="users-table" data-filter-empty="users-empty">
+    </div>
+    <select name="role">
+        <option value="">All roles</option>
+        {% for role_name in ['admin', 'hod', 'teacher', 'student'] %}
+        <option value="{{ role_name }}" {% if role_filter == role_name %}selected{% endif %}>{{ role_name|capitalize }}</option>
+        {% endfor %}
+    </select>
+    <select name="status">
+        <option value="">Any status</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Deactivated</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if search or role_filter or status_filter %}
+    <a href="{{ url_for('admin.list_users') }}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+</form>
+
+{% if users %}
+<div class="table-wrap">
+    <table class="table" id="users-table">
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Full name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last sign-in</th>
+                <th class="cell-actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>
+                    <span style="display: flex; align-items: center; gap: 0.55rem;">
+                        <span class="avatar avatar-sm">{{ u.username[0]|upper }}</span>
+                        <span class="cell-mono">{{ u.username }}</span>
+                    </span>
+                </td>
+                <td>
+                    {% if u.role == 'student' %}
+                        {% set s = get_student_by_roll(u.username) %}
+                        {{ s.name if s else '—' }}
+                    {% elif u.role == 'teacher' %}
+                        {% set t = get_teacher_by_staff_code(u.username) %}
+                        {{ t.name if t else '—' }}
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-{{ u.role }}">{{ u.role }}</span></td>
+                <td>
+                    {% if u.is_active %}
+                        <span class="badge badge-success badge-dot">Active</span>
+                    {% else %}
+                        <span class="badge badge-danger badge-dot">Deactivated</span>
+                    {% endif %}
+                </td>
+                <td class="text-muted cell-mono">
+                    {{ u.last_login_at[:16]|replace('T', ' ') if u.last_login_at else 'Never' }}
+                </td>
+                <td class="cell-actions">
+                    <form method="POST" action="{{ url_for('admin.reset_password_view', user_id=u.id) }}"
+                          data-confirm="Reset the password for {{ u.username }}? A new password will be generated.">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-secondary">Reset password</button>
+                    </form>
+                    {% if u.is_active %}
+                        {% if u.id != session.user_id %}
+                        <form method="POST" action="{{ url_for('admin.deactivate_user_view', user_id=u.id) }}"
+                              data-confirm="Deactivate {{ u.username }}? They will not be able to sign in.">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                        </form>
+                        {% else %}
+                        <span class="badge badge-neutral">This is you</span>
+                        {% endif %}
+                    {% else %}
+                        <form method="POST" action="{{ url_for('admin.activate_user_view', user_id=u.id) }}"
+                              data-confirm="Reactivate {{ u.username }} and restore their access?">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-success">Reactivate</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="empty-state" id="users-empty" hidden>
+    <svg class="icon"><use href="#i-search"/></svg>
+    <strong>No matching accounts</strong>
+    Try a different search term or clear the filters.
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-shield"/></svg>
+    <strong>No accounts match these filters</strong>
+    Clear the filters, or create a new user.
+</div>
+{% endif %}
+
+<p class="help-text">
+    Deactivated accounts keep their records and marks; they simply cannot sign in.
+    Resetting a password shows the new one exactly once.
+</p>
+{% endblock %}

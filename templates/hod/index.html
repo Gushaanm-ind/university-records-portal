@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}HOD Dashboard - University Portal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Head of Department overview for {{ session.username }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Department overview</h2>
+        <p>Counts across every branch you can administer.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-secondary">
+            <svg class="icon"><use href="#i-chart"/></svg> Reports
+        </a>
+        <a href="{{ url_for('hod.list_students') }}" class="btn btn-primary">
+            <svg class="icon"><use href="#i-users"/></svg> Students
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-icon tone-graduation"><svg class="icon"><use href="#i-users"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_students|length }}</span>
+            <span class="stat-label">Students</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-teacher"><svg class="icon"><use href="#i-user-check"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_teachers|length }}</span>
+            <span class="stat-label">Teachers</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-course"><svg class="icon"><use href="#i-book"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ all_courses|length }}</span>
+            <span class="stat-label">Courses</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon"><svg class="icon"><use href="#i-graduation"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ enrolments_count }}</span>
+            <span class="stat-label">Enrolments</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-audit"><svg class="icon"><use href="#i-clock"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ login_history|length }}</span>
+            <span class="stat-label">Login events</span>
+        </span>
+    </div>
+</div>
+
+<section class="card">
+    <div class="section-head">
+        <h2>Quick actions</h2>
+    </div>
+    <div class="action-grid">
+        <a href="{{ url_for('hod.list_students') }}" class="action-tile">
+            <svg class="icon"><use href="#i-users"/></svg> Students
+        </a>
+        <a href="{{ url_for('hod.list_teachers') }}" class="action-tile">
+            <svg class="icon"><use href="#i-user-check"/></svg> Teachers
+        </a>
+        <a href="{{ url_for('hod.list_courses') }}" class="action-tile">
+            <svg class="icon"><use href="#i-book"/></svg> Edit marks
+        </a>
+        <a href="{{ url_for('hod.login_history') }}" class="action-tile">
+            <svg class="icon"><use href="#i-clock"/></svg> Login history
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="action-tile">
+            <svg class="icon"><use href="#i-chart"/></svg> Reports
+        </a>
+        <a href="{{ url_for('auth.change_password') }}" class="action-tile">
+            <svg class="icon"><use href="#i-key"/></svg> Change password
+        </a>
+    </div>
+    <p class="notice mt-3 mb-0">
+        <strong>Scope:</strong> HODs can edit students, teachers and marks, but cannot
+        create users, view admin accounts or read the activity log.
+    </p>
+</section>
+{% endblock %}

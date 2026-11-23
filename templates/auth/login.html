@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in - University Portal{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <section class="auth-brand">
+        <a href="{{ url_for('auth.login') }}" class="brand-link">
+            <span class="brand-mark"><svg class="icon"><use href="#i-graduation"/></svg></span>
+            <span class="brand-text">
+                <strong>University</strong>
+                <small>Records Portal</small>
+            </span>
+        </a>
+
+        <div>
+            <h2>Every record, in one place.</h2>
+            <p>Students, teachers, courses, enrolments and marks &mdash; managed by role,
+               with a complete audit trail behind every change.</p>
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <svg class="icon"><use href="#i-shield"/></svg>
+                    <span>Role-based access for students, teachers, HODs and admins</span>
+                </div>
+                <div class="auth-feature">
+                    <svg class="icon"><use href="#i-activity"/></svg>
+                    <span>Every edit, login and export recorded</span>
+                </div>
+                <div class="auth-feature">
+                    <svg class="icon"><use href="#i-chart"/></svg>
+                    <span>Reports for averages, toppers and course performance</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="auth-quote">University database practical &mdash; 3NF schema, Flask &amp; SQLite.</p>
+    </section>
+
+    <section class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to continue to the portal</p>
+
+        {% if error %}
+            <div class="alert alert-error" role="alert">
+                <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+                <span>{{ error }}</span>
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}" data-busy>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-wrap">
+                    <svg class="icon input-icon-left"><use href="#i-user"/></svg>
+                    <input type="text" id="username" name="username"
+                           value="{{ request.form.username }}"
+                           placeholder="admin, hod, T001 or 101"
+                           autocomplete="username" autofocus required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="password" name="password"
+                           placeholder="Your password"
+                           autocomplete="current-password" required>
+                    <button type="button" class="icon-btn input-action"
+                            data-toggle-password="password" aria-label="Show password">
+                        <svg class="icon"><use href="#i-eye"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+
+        <p class="help-text">Demo credentials are listed in <code>CREDENTIALS.txt</code>.</p>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}National ID: {{ student.name }} - University Portal{% endblock %}
+{% block page_title %}National ID{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ student.name }} &middot; roll {{ student.roll_no }}</span>{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 620px;">
+    <div class="section-head">
+        <h2>Sensitive record</h2>
+        <span class="badge badge-danger">Restricted</span>
+    </div>
+    <div class="detail-list">
+        <div class="detail-row"><span class="detail-label">Student</span>{{ student.name }}</div>
+        <div class="detail-row"><span class="detail-label">Roll no</span><span class="cell-mono">{{ student.roll_no }}</span></div>
+        <div class="detail-row">
+            <span class="detail-label">National ID</span>
+            <span style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                <code class="secret-value">{{ national_id or 'Not recorded' }}</code>
+                {% if national_id %}
+                <button type="button" class="btn btn-sm btn-secondary" data-copy="{{ national_id }}">
+                    <svg class="icon"><use href="#i-copy"/></svg> Copy
+                </button>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="alert alert-info mt-3" style="margin-bottom: 0;">
+        <svg class="icon alert-icon"><use href="#i-shield"/></svg>
+        <span>This view has been recorded in the activity log as <code>VIEW_SENSITIVE</code>.</span>
+    </div>
+    <div class="form-actions">
+        <a href="{{ url_for('admin.edit_student', student_id=student.id) }}" class="btn btn-secondary">Back to student</a>
+    </div>
+</div>
+{% endblock %}

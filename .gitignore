@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local virtual environment
+venv/
+.venv/
+
+# Local secrets / overrides
+.env
+.env.local
+
+# Generated at runtime (rebuild with: ./run.sh --reset)
+university.db
+CREDENTIALS.txt
+
+# Local restore points
+.checkpoints/
+
+# OS / editor noise
+.DS_Store
+*.swp
+
+# Freebuff Desktop project metadata
+.freebuff/

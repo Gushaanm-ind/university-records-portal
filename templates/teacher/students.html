@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}All Students - University Portal{% endblock %}
+{% block page_title %}Students{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ students|length }} shown</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Student directory</h2>
+        <p>Read-only view of every student and their enrolments.</p>
+    </div>
+</div>
+
+<form method="GET" class="search-form">
+    <div class="input-wrap">
+        <svg class="icon input-icon-left"><use href="#i-search"/></svg>
+        <input type="text" name="search" placeholder="Search by name or roll number" value="{{ search }}"
+               data-filter-target="students-table">
+    </div>
+    <select name="branch">
+        <option value="">All branches</option>
+        {% for code in ['CSE', 'ECE', 'ME', 'CE'] %}
+        <option value="{{ code }}" {% if branch == code %}selected{% endif %}>{{ code }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Filter</button>
+    {% if search or branch %}
+    <a href="{{ url_for('teacher.list_students') }}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+</form>
+
+{% if students %}
+<div class="table-wrap">
+    <table class="table" id="students-table">
+        <thead>
+            <tr><th>Roll no</th><th>Name</th><th>Email</th><th>Branch</th><th class="cell-actions">Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td class="cell-mono">{{ s.roll_no }}</td>
+                <td class="cell-strong">{{ s.name }}</td>
+                <td class="text-muted">{{ s.email }}</td>
+                <td><span class="badge badge-{{ s.dept_code }}">{{ s.dept_code }} &middot; {{ s.dept_name }}</span></td>
+                <td class="cell-actions">
+                    <a href="{{ url_for('teacher.view_student', student_id=s.id) }}" class="btn btn-sm btn-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-users"/></svg>
+    <strong>No students found</strong>
+    Try a different search or clear the branch filter.
+</div>
+{% endif %}
+{% endblock %}

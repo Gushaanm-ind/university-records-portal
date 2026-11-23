@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My Profile - University Portal{% endblock %}
+{% block page_title %}My profile{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Your administrator account details</span>{% endblock %}
+
+{% block content %}
+<div class="info-grid">
+    <div class="card mb-0">
+        <div class="section-head">
+            <h2>Account</h2>
+            <span class="badge badge-{{ user.role }}">{{ user.role }}</span>
+        </div>
+        <div class="detail-list">
+            <div class="detail-row"><span class="detail-label">Username</span><span class="cell-mono">{{ user.username }}</span></div>
+            <div class="detail-row">
+                <span class="detail-label">Status</span>
+                {% if user.is_active %}
+                    <span class="badge badge-success badge-dot">Active</span>
+                {% else %}
+                    <span class="badge badge-danger badge-dot">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Last sign-in</span>
+                <span class="text-muted">{{ user.last_login_at[:16]|replace('T', ' ') if user.last_login_at else 'Not recorded' }}</span>
+            </div>
+        </div>
+        <p class="help-text">Admin accounts are not linked to a student or teacher record, so there is no stored name or email.</p>
+    </div>
+
+    <div class="card mb-0">
+        <h2>Update username</h2>
+        <p class="help-text" style="margin-top: 0; margin-bottom: 1rem;">
+            This changes the name you sign in with. It is logged in the activity trail.
+        </p>
+        {% if error %}
+        <div class="alert alert-error" role="alert">
+            <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="alert alert-success" role="status">
+            <svg class="icon alert-icon"><use href="#i-check"/></svg>
+            <span>{{ success }}</span>
+        </div>
+        {% endif %}
+        <form method="POST" data-busy>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}"
+                       maxlength="64" required autocomplete="username">
+                <p class="field-hint">Letters, numbers, dots, dashes and underscores only.</p>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary">
+                    <svg class="icon"><use href="#i-key"/></svg> Change password
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Course: {{ course.code }} - University Portal{% endblock %}
+{% block page_title %}{{ course.code }} &mdash; {{ course.title }}{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ course.dept_name }} &middot; {{ course.credits }} credits &middot; {{ course.teacher_name }}</span>{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>Marks entry</h2>
+        <p>Change a mark and save; every change is written to the activity log.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('hod.list_courses') }}" class="btn btn-secondary">Back to courses</a>
+    </div>
+</div>
+
+{% if success %}
+<div class="alert alert-success" role="status">
+    <svg class="icon alert-icon"><use href="#i-check"/></svg>
+    <span>{{ success }}</span>
+</div>
+{% endif %}
+{% if error %}
+<div class="alert alert-error" role="alert">
+    <svg class="icon alert-icon"><use href="#i-alert"/></svg>
+    <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="detail-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 1.5rem;">
+        <div class="detail-row"><span class="detail-label">Teacher</span>{{ course.teacher_name }} ({{ course.staff_code }})</div>
+        <div class="detail-row"><span class="detail-label">Branch</span>{{ course.dept_name }} ({{ course.dept_code }})</div>
+        <div class="detail-row"><span class="detail-label">Credits</span>{{ course.credits }}</div>
+        <div class="detail-row"><span class="detail-label">Enrolled</span>{{ enrolments|length }} students</div>
+    </div>
+</div>
+
+{% if changed_marks %}
+<div class="alert alert-info">
+    <svg class="icon alert-icon"><use href="#i-check"/></svg>
+    <div>
+        <strong>Marks updated:</strong>
+        <ul>
+            {% for cm in changed_marks %}
+            <li>{{ cm.name }} (roll {{ cm.roll_no }}): {{ cm.old if cm.old is not none else 'Not graded' }} &rarr; {{ cm.new }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+{% if enrolments %}
+<form method="POST" data-busy>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Roll no</th>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th>Current</th>
+                    <th style="width: 150px;">New mark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in enrolments %}
+                <tr>
+                    <td class="cell-mono">{{ e.roll_no }}</td>
+                    <td class="cell-strong">{{ e.name }}</td>
+                    <td>{{ e["dept_code"] if "dept_code" in e.keys() else "—" }}</td>
+                    <td>
+                        {% if e.marks is none %}
+                            <span class="score-pill is-empty">Not graded</span>
+                        {% else %}
+                            <span class="score-pill">{{ e.marks }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <input type="number" name="marks_{{ e.roll_no }}" min="0" max="100"
+                               style="height: 34px; width: 100%; border: 1px solid var(--border-strong); border-radius: 7px; padding: 0 0.5rem; font-family: inherit;"
+                               value="{{ e.marks if e.marks is not none else '' }}"
+                               placeholder="0–100" aria-label="New mark for {{ e.name }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="form-actions" style="border-top: 0; padding-top: 0;">
+        <button type="submit" class="btn btn-primary">Save marks</button>
+        <span class="help-text" style="margin: 0;">Blank fields are left unchanged.</span>
+    </div>
+</form>
+{% else %}
+<div class="empty-state">
+    <svg class="icon"><use href="#i-users"/></svg>
+    <strong>No students enrolled</strong>
+    This course has no enrolments yet.
+</div>
+{% endif %}
+{% endblock %}

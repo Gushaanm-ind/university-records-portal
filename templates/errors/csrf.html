@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Form Expired - University Portal{% endblock %}
+{% block page_title %}Your form expired{% endblock %}
+{% block content %}
+<div class="error-page">
+    <span class="error-code">400</span>
+    <h1>Your form expired</h1>
+    <p>{{ reason }}</p>
+    <p>This usually happens when a page stays open for a long time or the session
+       expired. Go back, reload the page and submit the form again.</p>
+    {% if session.user_id %}
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">Return to dashboard</a>
+    {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Go to sign in</a>
+    {% endif %}
+</div>
+{% endblock %}

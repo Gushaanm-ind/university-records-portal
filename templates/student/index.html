@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard - University Portal{% endblock %}
+{% block page_title %}My dashboard{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ student.name }} &middot; roll {{ student.roll_no }} &middot; {{ student.dept_code }}</span>{% endblock %}
+
+{% block content %}
+{% set ns = namespace(total=0, graded=0) %}
+{% for e in enrolments %}
+    {% if e.marks is not none %}
+        {% set ns.total = ns.total + e.marks %}
+        {% set ns.graded = ns.graded + 1 %}
+    {% endif %}
+{% endfor %}
+
+<div class="page-head">
+    <div class="page-head-text">
+        <h2>At a glance</h2>
+        <p>Your courses, marks and recent sign-ins.</p>
+    </div>
+    <div class="page-head-actions">
+        <a href="{{ url_for('student.profile') }}" class="btn btn-secondary">
+            <svg class="icon"><use href="#i-user"/></svg> My profile
+        </a>
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary">
+            <svg class="icon"><use href="#i-key"/></svg> Password
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-icon tone-course"><svg class="icon"><use href="#i-book"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ enrolments|length }}</span>
+            <span class="stat-label">Enrolled courses</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-graduation"><svg class="icon"><use href="#i-check"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ ns.graded }}</span>
+            <span class="stat-label">Graded courses</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon"><svg class="icon"><use href="#i-chart"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ (ns.total / ns.graded)|round(1) if ns.graded else '—' }}</span>
+            <span class="stat-label">Average marks</span>
+        </span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon tone-audit"><svg class="icon"><use href="#i-clock"/></svg></span>
+        <span class="stat-body">
+            <span class="stat-value">{{ login_history|length }}</span>
+            <span class="stat-label">Sign-ins recorded</span>
+        </span>
+    </div>
+</div>
+
+<section class="card">
+    <div class="section-head">
+        <h2>My enrolments</h2>
+        <span class="page-subtitle">Marks are entered by your teachers or the department</span>
+    </div>
+    {% if enrolments %}
+    <div class="table-wrap" style="margin-bottom: 0; box-shadow: none;">
+        <table class="table">
+            <thead>
+                <tr><th>Course</th><th>Title</th><th>Credits</th><th>Teacher</th><th>Branch</th><th>Marks</th></tr>
+            </thead>
+            <tbody>
+                {% for e in enrolments %}
+                <tr>
+                    <td class="cell-mono">{{ e.code }}</td>
+                    <td class="cell-strong">{{ e.title }}</td>
+                    <td class="cell-num text-muted">{{ e.credits }}</td>
+                    <td>{{ e.teacher_name }} <span class="text-muted">({{ e.staff_code }})</span></td>
+                    <td>{{ e.dept_name }}</td>
+                    <td>
+                        {% if e.marks is none %}
+                            <span class="score-pill is-empty">Not graded</span>
+                        {% else %}
+                            <span class="score-pill">{{ e.marks }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg class="icon"><use href="#i-book"/></svg>
+        <strong>No enrolments yet</strong>
+        Your courses will appear here once you are enrolled.
+    </div>
+    {% endif %}
+</section>
+
+<div class="info-grid">
+    <section class="card mb-0">
+        <div class="section-head">
+            <h2>My details</h2>
+            <a href="{{ url_for('student.profile') }}" class="link-more">Open profile</a>
+        </div>
+        <div class="detail-list">
+            <div class="detail-row"><span class="detail-label">Name</span>{{ student.name }}</div>
+            <div class="detail-row"><span class="detail-label">Roll no</span><span class="cell-mono">{{ student.roll_no }}</span></div>
+            <div class="detail-row"><span class="detail-label">Email</span>{{ student.email }}</div>
+            <div class="detail-row"><span class="detail-label">Branch</span>{{ student.dept_name }} ({{ student.dept_code }})</div>
+        </div>
+    </section>
+
+    <section class="card mb-0">
+        <div class="section-head">
+            <h2>Recent sign-ins</h2>
+        </div>
+        {% if login_history %}
+        <div class="table-wrap" style="margin-bottom: 0; box-shadow: none;">
+            <table class="table">
+                <thead>
+                    <tr><th>When</th><th>Result</th><th>IP</th></tr>
+                </thead>
+                <tbody>
+                    {% for entry in login_history %}
+                    <tr>
+                        <td class="cell-mono text-muted">{{ entry.logged_in_at[:19]|replace('T', ' ') }}</td>
+                        <td>
+                            {% if entry.success %}
+                                <span class="badge badge-success badge-dot">Success</span>
+                            {% else %}
+                                <span class="badge badge-danger badge-dot">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td class="cell-mono text-muted">{{ entry.ip_address or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg class="icon"><use href="#i-clock"/></svg>
+            <strong>No sign-ins recorded</strong>
+            Attempts will be listed here.
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
